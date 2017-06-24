@@ -51,7 +51,6 @@ target_include_directories(launch-db PUBLIC
     include
 )
 target_compile_options(launch-db PUBLIC
-    -std=c++14
     -pthread
     -pedantic
     -Wall
