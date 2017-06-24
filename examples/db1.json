@@ -1,0 +1,174 @@
+{
+  "owner": "minuz",
+  "tables": [
+    {
+      "name": "barcode",
+      "schema": "front",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int64",
+          "primary_key": true
+        },
+        {
+          "name": "code",
+          "type": "str",
+          "not_null": true
+        }
+      ]
+    },
+    {
+      "name": "product",
+      "comment": "Company products",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int64",
+          "primary_key": true
+        },
+        {
+          "name": "name",
+          "type": "text"
+        },
+        {
+          "name": "picture",
+          "type": "buffer"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "price",
+          "type": "int64"
+        },
+        {
+          "name": "barcode",
+          "type": "int64",
+          "unique": true,
+          "comment": "Barcode value"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "default": "true",
+          "comment": "Active value"
+        }
+      ],
+      "primary_key": [],
+      "foreign_keys": []
+    },
+    {
+      "name": "product_list",
+      "comment": "Lists of products",
+      "columns": [
+        {
+          "name": "list_id",
+          "type": "int64",
+          "primary_key": true
+        },
+        {
+          "name": "name",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "products",
+      "comment": "Lists of products",
+      "columns": [
+        {
+          "name": "list_id",
+          "type": "int64",
+          "primary_key": true
+        },
+        {
+          "name": "product_id",
+          "type": "int64",
+          "primary_key": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "table": "product",
+          "columns": [
+            "product_id"
+          ],
+          "references": [
+            "id"
+          ]
+        },
+        {
+          "table": "product_list",
+          "columns": [
+            "list_id"
+          ],
+          "references": [
+            "list_id"
+          ]
+        }
+      ]
+    },
+    {
+      "schema": "public",
+      "name": "customer",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int64",
+          "primary_key": true
+        },
+        {
+          "name": "name",
+          "type": "text"
+        },
+        {
+          "name": "email",
+          "type": "text"
+        },
+        {
+          "name": "phone",
+          "type": "text"
+        },
+        {
+          "name": "birthday",
+          "type": "timestamp"
+        },
+        {
+          "name": "filing_date",
+          "type": "timestamp"
+        }
+      ]
+    },
+    {
+      "schema": "front",
+      "name": "workplace",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true
+        },
+        {
+          "name": "name",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "schema": "test",
+      "name": "sale",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int64",
+          "primary_key": true
+        },
+        {
+          "name": "sum",
+          "type": "int64"
+        }
+      ]
+    }
+  ]
+}
