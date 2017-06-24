@@ -14,7 +14,6 @@
 
 #include <version.h>
 
-using namespace std::literals::string_literals;
 using json = nlohmann::json;
 
 volatile int log_level = DEFAULT_LOG_LEVEL;
@@ -60,37 +59,38 @@ struct db_context {
 };
 
 static std::string to_postgres_type(const db_context::column_type &c) {
-    std::string type_name;
+    using namespace std;
+    string type_name;
 
     switch (strex::hash(c.type)) {
     case strex::hash("int"):
-        type_name = "INTEGER"s;
+        type_name = "INTEGER";
         break;
     case strex::hash("int32"):
-        type_name = "INTEGER"s;
+        type_name = "INTEGER";
         break;
     case strex::hash("int64"):
-        type_name = "BIGINT"s;
+        type_name = "BIGINT";
         break;
     case strex::hash("str"):
-        type_name = "TEXT"s;
+        type_name = "TEXT";
         break;
     case strex::hash("text"):
-        type_name = "TEXT"s;
+        type_name = "TEXT";
         break;
     case strex::hash("bool"):
-        type_name = "BOOLEAN"s;
+        type_name = "BOOLEAN";
         break;
     case strex::hash("buffer"):
-        type_name = "bytea"s;
+        type_name = "bytea";
     case strex::hash("timestamp"):
-        type_name = "timestamp"s;
+        type_name = "timestamp";
     }
 
     if (c.unique_key)
-        type_name += " UNIQUE"s;
+        type_name += " UNIQUE";
     if (c.not_null)
-        type_name += " NOT NULL"s;
+        type_name += " NOT NULL";
     if (!c.default_value.empty())
         type_name += " DEFAULT " + c.default_value;
 
@@ -164,7 +164,7 @@ static void json_to_ctx(const json &j, db_context &ctx) {
 static int postgress_generator(const json &j) {
     using namespace std;
 
-    const auto indent = "   "s;
+    const auto indent = string{"   "};
 
     db_context ctx;
     json_to_ctx(j, ctx);
