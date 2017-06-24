@@ -40,7 +40,6 @@ struct db_context {
         bool primary_key = false;
         bool unique_key = false;
         bool not_null = false;
-        bool auto_increment = false;
     } column_t;
 
     typedef struct table_type {
