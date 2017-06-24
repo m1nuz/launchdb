@@ -12,6 +12,8 @@
 #include <xargs.hpp>
 #include <strex.hpp>
 
+#include <version.h>
+
 using namespace std::string_literals;
 using json = nlohmann::json;
 
@@ -282,6 +284,9 @@ extern int main(int argc, char *argv[]) {
         gen_name = v;
     }).add_option("-h", "Display help", [&] () {
         puts(args.usage(argv[0]).c_str());
+        exit(EXIT_SUCCESS);
+    }).add_option("-v", "Version", [&] () {
+        fprintf(stdout, "%s %s\n", app_name, LAUNCHDB_VERSION);
         exit(EXIT_SUCCESS);
     });
 
