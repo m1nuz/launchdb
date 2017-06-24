@@ -57,4 +57,4 @@ script:
   - uname -a
   - $CXX --version
   - cd build
-  - cmake .. && make
+  - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && cmake --build ..
