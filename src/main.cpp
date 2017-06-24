@@ -14,7 +14,7 @@
 
 #include <version.h>
 
-using namespace std::string_literals;
+using namespace std::literals;
 using json = nlohmann::json;
 
 volatile int log_level = DEFAULT_LOG_LEVEL;
