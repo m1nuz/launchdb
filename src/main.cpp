@@ -133,7 +133,7 @@ static void json_to_ctx(const json &j, db_context &ctx) {
                     if (column_pk)
                         pk.insert(column_name);
 
-                    all_columns.push_back({column_name, column_type, column_comment, default_value, column_pk , unique_column, column_not_null});
+                    all_columns.push_back(db_context::column_t{column_name, column_type, column_comment, default_value, column_pk, unique_column, column_not_null});
                 }
 
             if (tbl.find("foreign_keys") != tbl.end())
@@ -154,10 +154,10 @@ static void json_to_ctx(const json &j, db_context &ctx) {
                             fk_references.emplace_back(fkref.get<string>());
                     }
 
-                    fks.push_back({fk_table, fk_schema, fk_columns, fk_references});
+                    fks.push_back(db_context::foreign_key_t{fk_table, fk_schema, fk_columns, fk_references});
                 }
 
-            ctx.tables.push_back({schema_name, table_name, table_comment, all_columns, pk, fks});
+            ctx.tables.push_back(db_context::table_t{schema_name, table_name, table_comment, all_columns, pk, fks});
         }
 }
 
