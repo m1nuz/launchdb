@@ -97,6 +97,7 @@ before_install:
 # Install dependencies
 install:
   - sudo apt-get update -qq
+  - sudo apt-get install -qq libc++-dev
   
 # Only watch the master branch
 branches:
