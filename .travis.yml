@@ -56,6 +56,5 @@ branches:
 script:
   - uname -a
   - $CXX --version
-  - mkdir build
   - cd build
   - cmake .. && make
