@@ -33,33 +33,12 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.6
-          packages:
-            - clang-3.6
-      env:
-        - MATRIX_EVAL="CC=clang-3.6 && CXX=clang++-3.6"
-
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
-          packages:
-            - clang-3.7
-      env:
-        - MATRIX_EVAL="CC=clang-3.7 && CXX=clang++-3.7"
-
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.8
           packages:
             - clang-3.8
       env:
         - MATRIX_EVAL="CC=clang-3.8 && CXX=clang++-3.8"
+        - EXTRA_FLAGS="-stdlib=libc++"
 
     - os: linux
       addons:
@@ -70,6 +49,7 @@ matrix:
             - clang-3.9
       env:
         - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
+        - EXTRA_FLAGS="-stdlib=libc++"
 
     - os: linux
       addons:
@@ -80,6 +60,7 @@ matrix:
             - clang-4.0
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
+        - EXTRA_FLAGS="-stdlib=libc++"
 
     - os: linux
       addons:
@@ -90,6 +71,7 @@ matrix:
             - clang-5.0
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+        - EXTRA_FLAGS="-stdlib=libc++"
 
 before_install:
   - eval "${MATRIX_EVAL}"
@@ -98,6 +80,7 @@ before_install:
 install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq libc++-dev
+  - sudo apt-get install -qq libc++abi-dev
   
 # Only watch the master branch
 branches:
@@ -109,4 +92,4 @@ script:
   - uname -a
   - $CXX --version
   - cd build
-  - cmake .. && cmake --build .
+  - cmake -DCMAKE_CXX_FLAGS="${EXTRA_FLAGS}" .. && cmake --build .
