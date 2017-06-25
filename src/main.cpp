@@ -83,8 +83,16 @@ static std::string to_postgres_type(const db_context::column_type &c) {
         break;
     case strex::hash("buffer"):
         type_name = "bytea";
+        break;
     case strex::hash("timestamp"):
         type_name = "timestamp";
+        break;
+    case strex::hash("serial"):
+        type_name = "SERIAL";
+        break;
+    case strex::hash("decimal"):
+        type_name = "DECIMAL(12, 2)";
+        break;
     }
 
     if (c.unique_key)
