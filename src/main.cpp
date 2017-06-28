@@ -52,10 +52,19 @@ struct db_context {
 
     typedef std::string schema_t;
 
+    typedef struct index_type {
+        std::string schema_name;
+        std::string table_name;
+        std::string name;
+        std::string column_name;
+        //bool        if_exists;
+    } index_t;
+
     std::string owner;
 
     std::set<schema_t> schemas;
     std::vector<table_t> tables;
+    std::vector<index_t> indices;
 };
 
 static std::string to_postgres_type(const db_context::column_type &c) {
@@ -165,6 +174,20 @@ static void json_to_ctx(const json &j, db_context &ctx) {
                     fks.push_back(db_context::foreign_key_t{fk_table, fk_schema, fk_columns, fk_references});
                 }
 
+            // indices from foreign keys
+            for (const auto &fk : fks) {
+                std::string ix_name;
+                std::string ix_column_name;
+
+                for (const auto &n : fk.columns)
+                    ix_name += (ix_name.empty() ? "" : "_") + n;
+
+                for (const auto &n : fk.ref_columns)
+                    ix_column_name = (ix_column_name.empty() ? "" : "_") + n;
+
+                ctx.indices.push_back(db_context::index_t{schema_name, table_name, ix_name, ix_column_name});
+            }
+
             ctx.tables.push_back(db_context::table_t{schema_name, table_name, table_comment, all_columns, pk, fks});
         }
 }
@@ -260,6 +283,14 @@ static int postgress_generator(const json &j) {
 
         cout << '\n';
     }
+
+    for (const auto &ix : ctx.indices) {
+        cout << "CREATE INDEX " << "idx_" << ix.table_name << "__" << ix.name << " ON "
+             << ix.schema_name << (ix.schema_name.empty() ? "" : ".") << ix.table_name << " (" << ix.name << ")"
+             << ";\n";
+    }
+
+    cout << '\n';
 
     cout << "COMMIT;\n";
 
