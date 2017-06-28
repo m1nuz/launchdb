@@ -1,0 +1,281 @@
+{
+  "owner": "minuz",
+  "privileges": "all",
+  "tables": [
+    {
+      "name": "category",
+      "schema": "estore",
+      "columns": [
+        {
+          "name": "id",
+          "type": "serial",
+          "primary_key": true
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "not_null": true
+        }
+      ]
+    },
+    {
+      "name": "customer",
+      "schema": "estore",
+      "columns": [
+        {
+          "name": "id",
+          "type": "serial",
+          "primary_key": true
+        },
+        {
+          "name": "email",
+          "type": "str",
+          "not_null": true,
+          "unique": true
+        },
+        {
+          "name": "password",
+          "type": "str",
+          "not_null": true
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "not_null": true
+        },
+        {
+          "name": "country",
+          "type": "str",
+          "not_null": true
+        },
+        {
+          "name": "address",
+          "type": "str",
+          "not_null": true
+        }
+      ]
+    },
+    {
+      "name": "order",
+      "schema": "estore",
+      "columns": [
+        {
+          "name": "id",
+          "type": "serial",
+          "primary_key": true
+        },
+        {
+          "name": "state",
+          "type": "str",
+          "not_null": true
+        },
+        {
+          "name": "date_created",
+          "type": "timestamp",
+          "not_null": true
+        },
+        {
+          "name": "date_shipped",
+          "type": "timestamp"
+        },
+        {
+          "name": "date_delivered",
+          "type": "timestamp"
+        },
+        {
+          "name": "total_price",
+          "type": "decimal"
+        },
+        {
+          "name": "customer",
+          "type": "int",
+          "not_null": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "schema": "estore",
+          "table": "customer",
+          "columns": [
+            "customer"
+          ],
+          "references": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "product",
+      "schema": "estore",
+      "columns": [
+        {
+          "name": "id",
+          "type": "serial",
+          "primary_key": true
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "not_null": true
+        },
+        {
+          "name": "description",
+          "type": "str"
+        },
+        {
+          "name": "picture",
+          "type": "buffer"
+        },
+        {
+          "name": "price",
+          "type": "decimal",
+          "not_null": true
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "not_null": true
+        }
+      ]
+    },
+    {
+      "name": "cart_item",
+      "schema": "estore",
+      "columns": [
+        {
+          "name": "id",
+          "type": "serial",
+          "primary_key": true
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "not_null": true
+        },
+        {
+          "name": "customer_id",
+          "type": "int",
+          "not_null": true
+        },
+        {
+          "name": "product_id",
+          "type": "int",
+          "not_null": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "schema": "estore",
+          "table": "customer",
+          "columns": [
+            "customer_id"
+          ],
+          "references": [
+            "id"
+          ]
+        },
+        {
+          "schema": "estore",
+          "table": "product",
+          "columns": [
+            "product_id"
+          ],
+          "references": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "category_product",
+      "schema": "estore",
+      "columns": [
+        {
+          "name": "product_id",
+          "type": "int",
+          "not_null": true,
+          "primary_key": true
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "not_null": true,
+          "primary_key": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "schema": "estore",
+          "table": "category",
+          "columns": [
+            "category_id"
+          ],
+          "references": [
+            "id"
+          ]
+        },
+        {
+          "schema": "estore",
+          "table": "product",
+          "columns": [
+            "product_id"
+          ],
+          "references": [
+            "id"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "order_item",
+      "schema": "estore",
+      "columns": [
+        {
+          "name": "quantity",
+          "type": "int",
+          "not_null": true
+        },
+        {
+          "name": "price",
+          "type": "decimal",
+          "not_null": true
+        },
+        {
+          "name": "order_id",
+          "type": "int",
+          "not_null": true,
+          "primary_key": true
+        },
+        {
+          "name": "product_id",
+          "type": "int",
+          "not_null": true,
+          "primary_key": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "schema": "estore",
+          "table": "order",
+          "columns": [
+            "order_id"
+          ],
+          "references": [
+            "id"
+          ]
+        },
+        {
+          "schema": "estore",
+          "table": "product",
+          "columns": [
+            "product_id"
+          ],
+          "references": [
+            "id"
+          ]
+        }
+      ]
+    }
+  ]
+}
