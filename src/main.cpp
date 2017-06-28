@@ -231,7 +231,7 @@ static int postgress_generator(const json &j) {
                 for (const auto &c : fk.columns)
                     cout << c;
                 cout << ") REFERENCES ";
-                cout << fk.ref_table << " (";
+                cout << fk.ref_schema << (fk.ref_schema.empty() ? "" : ".") << fk.ref_table << " (";
                 for (const auto &ref : fk.ref_columns)
                     cout << ref;
                 cout << ')';
