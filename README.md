@@ -5,6 +5,22 @@
 
 Database creation tool
 
+## Features
+
+### Input formats
+- [x] JSON
+- [ ] YAML
+
+### Postgres
+- [x] Schema creation
+- [x] Tables
+- [x] Pimary keys
+- [x] Foreign keys
+- [x] Indices
+- [x] Comments
+- [x] Ownership
+- [ ] Rights
+
 ## How to Build
 ```sh
 cd build
@@ -21,6 +37,7 @@ Options:
 - -g Generator postgres, mysql, maria. Default: postgres
 - -v Version
 - -h Display help
+
 ### Example usage for Postgres
 ```sh
 createdb estoredb
