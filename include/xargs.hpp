@@ -80,7 +80,7 @@ namespace xargs {
 
             const auto have_options = !options_with_values.empty() && !options_no_values.empty();
 
-            std::string text{"Usage:" + (have_options ? leaf + " [options] " : " ") + args_text};
+            std::string text{"Usage: " + (have_options ? leaf + " [options] " : " ") + args_text};
 
             for (const auto &a : all_args)
                 if (!std::get<1>(a).empty())
