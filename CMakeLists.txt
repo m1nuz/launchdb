@@ -6,6 +6,12 @@ project(launchdb)
 set(PROJECT_NAME_UPPER ${PROJECT_NAME})
 string(TOUPPER ${PROJECT_NAME_UPPER} PROJECT_NAME_UPPER)
 
+set(INSTALL_DIR bin)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 include_directories(${PROJECT_BINARY_DIR})
 
 # Set variable for the generate sources
@@ -13,7 +19,7 @@ set(GENERATE_SRCS ${PROJECT_SOURCE_DIR}/src/generate_version.c)
 set(GENERATE_OUTPUT ${PROJECT_BINARY_DIR}/generate_build_version)
 set(VERSION_OUTPUT ${PROJECT_BINARY_DIR}/version.h)
 set(VERSION_MAJOR 0)
-set(VERSION_MINOR 1)
+set(VERSION_MINOR 2)
 set(VERSION_PATCH 0)
 set(VERSION_META "-dev")
 
@@ -50,7 +56,9 @@ execute_process(COMMAND ${LSB_RELEASE} -cs
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-include_directories(include)
+set(SHARED_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+add_subdirectory(src/migrate)
 
 file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.cpp)
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.hpp)
@@ -64,7 +72,7 @@ set_target_properties(launch-db PROPERTIES
     CXX_EXTENSIONS NO
 )
 target_include_directories(launch-db PUBLIC
-    include
+    ${SHARED_INCLUDE_PATH}
 )
 target_compile_options(launch-db PUBLIC
     -pthread
@@ -80,7 +88,6 @@ target_compile_options(launch-db PUBLIC
 #target_link_libraries(launch-db)
 
 # Install
-set(INSTALL_DIR bin)
 install(TARGETS launch-db RUNTIME DESTINATION ${INSTALL_DIR})
 
 # DEB package
