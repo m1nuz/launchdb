@@ -43,14 +43,27 @@ struct db_context {
         std::string table_name;
         std::string name;
         std::string column_name;
-        //bool        if_exists;
+        //bool if_exists;
     } index_t;
+
+    typedef struct user_type {
+        std::string name;
+        std::string password;
+        //bool if_exists;
+    } user_t;
+
+    typedef struct privilege_type {
+        std::string user;
+        std::string name;
+    } privilege_t;
 
     std::string owner;
 
     std::set<schema_t> schemas;
     std::vector<table_t> tables;
     std::vector<index_t> indices;
+    std::vector<user_t> users;
+    std::vector<privilege_t> privileges;
 };
 
 struct db_config {

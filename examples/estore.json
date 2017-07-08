@@ -1,6 +1,10 @@
 {
-  "owner": "minuz",
-  "privileges": "all",
+  "owner": "james",
+  "privileges": [
+    {
+      "james": "all"
+    }
+  ],
   "tables": [
     {
       "name": "category",
@@ -276,6 +280,12 @@
           ]
         }
       ]
+    }
+  ],
+  "users": [
+    {
+      "name": "james",
+      "password": "james"
     }
   ]
 }

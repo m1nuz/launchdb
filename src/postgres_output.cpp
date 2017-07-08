@@ -1,6 +1,7 @@
 #include <json.hpp>
 
 #include "context.hpp"
+#include "strex.hpp"
 
 using json = nlohmann::json;
 
@@ -15,13 +16,33 @@ namespace postgres {
         if (cfg.make_transaction)
             cout << "BEGIN;\n\n";
 
+        // create role if needed
+        for (const auto &usr : ctx.users) {
+            cout << "DO\n$body$\nBEGIN\n";
+            cout << indent << "IF NOT EXISTS ( SELECT FROM pg_catalog.pg_user WHERE  usename = \'" << usr.name << "\' ) THEN \n";
+            cout << indent << "CREATE ROLE " << usr.name;
+            if (usr.password.empty())
+                cout << " LOGIN";
+            else
+                cout << " LOGIN PASSWORD \'" << usr.password << "\';\n";
+            cout << indent << "END IF;\n";
+            cout << "END\n$body$;\n";
+        }
+
+        if (!ctx.users.empty())
+            cout << "\n\n";
+
         // schemas
         for (const auto &s : ctx.schemas) {
             if (s != "public")
                 cout << "CREATE SCHEMA " << s << ";\n";
+
+            if (!ctx.owner.empty())
+                cout << '\n' << "ALTER SCHEMA " << s << " OWNER TO " << ctx.owner << ";\n";
         }
 
-        cout << "\n\n";
+        if (!ctx.schemas.empty())
+            cout << "\n\n";
 
         for (const auto &t : ctx.tables) {
             const auto full_table_name = (t.schema_name.empty() ? t.table_name : t.schema_name + "." + t.table_name);
@@ -97,13 +118,30 @@ namespace postgres {
             cout << '\n';
         }
 
+        if (!ctx.tables.empty())
+            cout << "\n";
+
         for (const auto &ix : ctx.indices) {
             cout << "CREATE INDEX " << "idx_" << ix.table_name << "__" << ix.name << " ON "
                  << ix.schema_name << (ix.schema_name.empty() ? "" : ".") << ix.table_name << " (" << ix.name << ")"
                  << ";\n";
         }
 
-        cout << '\n';
+        if (!ctx.privileges.empty())
+            cout << "\n\n";
+
+        for (const auto &gp : ctx.privileges) {
+            for (const auto &s : ctx.schemas) {
+                cout << "GRANT " << strex::toupper(gp.name) << " PRIVILEGES ON SCHEMA " << s << " TO " << gp.user << ";\n";
+                cout << "GRANT " << strex::toupper(gp.name) << " ON ALL SEQUENCES IN SCHEMA " << s << " TO " << gp.user << ";\n";
+            }
+            for (const auto &t : ctx.tables) {
+                const auto full_table_name = (t.schema_name.empty() ? t.table_name : t.schema_name + "." + t.table_name);
+                cout << "GRANT " << strex::toupper(gp.name) << " PRIVILEGES ON " << full_table_name << " TO " << gp.user << ";\n";
+            }
+        }
+
+        cout << "\n\n";
 
         cout << (cfg.make_transaction ? "COMMIT;\n" : "\n");
 

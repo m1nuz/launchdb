@@ -75,6 +75,7 @@ target_compile_options(launch-db PUBLIC
     -Wpointer-arith
     -Wcast-qual
     -Wunused-result
+    -g
 )
 #target_link_libraries(launch-db)
 

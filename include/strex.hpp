@@ -1,6 +1,8 @@
 #pragma once
 
 #include <sstream>
+#include <locale>
+#include <algorithm>
 
 namespace strex {
     template <typename T>
@@ -39,5 +41,25 @@ namespace strex {
         }
 
         return buff.str();
+    }
+
+    inline std::string tolower(const std::string& str, const std::locale& loc = std::locale("C")) {
+        std::string result(str.size(), '\0');
+
+        std::transform(str.begin(), str.end(), result.begin(), [&] (char c) {
+            return std::tolower(c, loc);
+        });
+
+        return result;
+    }
+
+    inline std::string toupper(const std::string& str, const std::locale& loc = std::locale("C")) {
+        std::string result(str.size(), '\0');
+
+        std::transform(str.begin(), str.end(), result.begin(), [&] (char c) {
+            return std::toupper(c, loc);
+        });
+
+        return result;
     }
 }

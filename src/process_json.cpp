@@ -9,8 +9,26 @@ extern db_context process_json(const json &j) {
 
     db_context ctx;
 
+    // TODO: alloc vectors in ctx
+
+    if (j.find("privileges") != j.end())
+        for (auto &pr : j["privileges"]) {
+            const auto user_name = pr.begin().key();
+            const auto privilege = pr.begin().value().get<string>();
+
+            ctx.privileges.push_back(db_context::privilege_t{user_name, privilege});
+        }
+
     if (j.find("owner") != j.end())
         ctx.owner = j["owner"].get<string>();
+
+    if (j.find("users") != j.end())
+        for (auto &usr : j["users"]) {
+            const auto user_name = usr["name"].get<string>();
+            const auto user_pwd = usr.find("password") != usr.end() ? usr["password"].get<string>() : string{};
+
+            ctx.users.push_back(db_context::user_t{user_name, user_pwd});
+        }
 
     if (j.find("tables") != j.end())
         for (auto &tbl : j["tables"]) {
