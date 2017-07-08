@@ -19,7 +19,8 @@ Database creation tool
 - [x] Indices
 - [x] Comments
 - [x] Ownership
-- [ ] Rights
+- [x] Users
+- [x] Privileges
 
 ## How to Build
 ```sh
