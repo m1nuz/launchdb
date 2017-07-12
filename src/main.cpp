@@ -17,14 +17,14 @@
 
 using json = nlohmann::json;
 
-db_context process_json(const json &j);
+db::context process_json(const json &j);
 
 volatile int log_level = DEFAULT_LOG_LEVEL;
 
-typedef std::function<int (const db_context &, const db_config &)> generator_t;
+typedef std::function<int (const db::context &, const db::config &)> generator_t;
 
 namespace postgres {
-    int output(const db_context &ctx, const db_config &cfg);
+    int output(const db::context &ctx, const db::config &cfg);
 }
 
 extern int main(int argc, char *argv[]) {
@@ -80,7 +80,7 @@ extern int main(int argc, char *argv[]) {
 
     json j = json::parse(contents);
 
-    generators[gen_name](process_json(j), db_config{});
+    generators[gen_name](process_json(j), db::config{});
 
     return 0;
 }

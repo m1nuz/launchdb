@@ -6,9 +6,9 @@
 using json = nlohmann::json;
 
 namespace postgres {
-    std::string to_type(const db_context::column_type &c);
+    std::string to_type(const db::context::column_type &c);
 
-    extern int output(const db_context &ctx, const db_config &cfg) {
+    extern int output(const db::context &ctx, const db::config &cfg) {
         using namespace std;
 
         const auto indent = string{"   "};

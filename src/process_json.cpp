@@ -4,10 +4,10 @@
 
 using json = nlohmann::json;
 
-extern db_context process_json(const json &j) {
+extern db::context process_json(const json &j) {
     using namespace std;
 
-    db_context ctx;
+    db::context ctx;
 
     // TODO: alloc vectors in ctx
 
@@ -16,7 +16,7 @@ extern db_context process_json(const json &j) {
             const auto user_name = pr.begin().key();
             const auto privilege = pr.begin().value().get<string>();
 
-            ctx.privileges.push_back(db_context::privilege_t{user_name, privilege});
+            ctx.privileges.push_back(db::context::privilege_t{user_name, privilege});
         }
 
     if (j.find("owner") != j.end())
@@ -27,7 +27,7 @@ extern db_context process_json(const json &j) {
             const auto user_name = usr["name"].get<string>();
             const auto user_pwd = usr.find("password") != usr.end() ? usr["password"].get<string>() : string{};
 
-            ctx.users.push_back(db_context::user_t{user_name, user_pwd});
+            ctx.users.push_back(db::context::user_t{user_name, user_pwd});
         }
 
     if (j.find("tables") != j.end())
@@ -40,12 +40,12 @@ extern db_context process_json(const json &j) {
             if (!schema_name.empty())
                 ctx.schemas.insert(schema_name);
 
-            std::vector<db_context::column_t> all_columns;
+            std::vector<db::context::column_t> all_columns;
 
             //auto is_primary_key = false;
 
-            db_context::primary_key_t pk;
-            db_context::foreign_keys_t fks;
+            db::context::primary_key_t pk;
+            db::context::foreign_keys_t fks;
 
             if (tbl.find("columns") != tbl.end())
                 for (auto &col : tbl["columns"]) {
@@ -60,7 +60,7 @@ extern db_context process_json(const json &j) {
                     if (column_pk)
                         pk.insert(column_name);
 
-                    all_columns.push_back(db_context::column_t{column_name, column_type, column_comment, default_value, column_pk, unique_column, column_not_null});
+                    all_columns.push_back(db::context::column_t{column_name, column_type, column_comment, default_value, column_pk, unique_column, column_not_null});
                 }
 
             if (tbl.find("foreign_keys") != tbl.end())
@@ -81,7 +81,7 @@ extern db_context process_json(const json &j) {
                             fk_references.emplace_back(fkref.get<string>());
                     }
 
-                    fks.push_back(db_context::foreign_key_t{fk_table, fk_schema, fk_columns, fk_references});
+                    fks.push_back(db::context::foreign_key_t{fk_table, fk_schema, fk_columns, fk_references});
                 }
 
             // indices from foreign keys
@@ -95,10 +95,10 @@ extern db_context process_json(const json &j) {
                 for (const auto &n : fk.ref_columns)
                     ix_column_name = (ix_column_name.empty() ? "" : "_") + n;
 
-                ctx.indices.push_back(db_context::index_t{schema_name, table_name, ix_name, ix_column_name});
+                ctx.indices.push_back(db::context::index_t{schema_name, table_name, ix_name, ix_column_name});
             }
 
-            ctx.tables.push_back(db_context::table_t{schema_name, table_name, table_comment, all_columns, pk, fks});
+            ctx.tables.push_back(db::context::table_t{schema_name, table_name, table_comment, all_columns, pk, fks});
         }
 
     return ctx;

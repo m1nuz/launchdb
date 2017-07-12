@@ -3,7 +3,7 @@
 #include "context.hpp"
 
 namespace postgres {
-    std::string to_type(const db_context::column_type &c) {
+    std::string to_type(const db::context::column_type &c) {
         using namespace std;
         string type_name;
 
