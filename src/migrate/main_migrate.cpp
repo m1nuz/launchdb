@@ -6,9 +6,9 @@
 #include <journal.hpp>
 #include <xargs.hpp>
 
-#include "../context.hpp"
+#include <context.hpp>
 
-#include <migrate_version.h>
+#include <version.h>
 
 volatile int log_level = DEFAULT_LOG_LEVEL;
 
@@ -48,7 +48,7 @@ extern int main(int argc, char *argv[]) {
         puts(args.usage(argv[0]).c_str());
         exit(EXIT_SUCCESS);
     }).add_option("-v", "Version", [&] () {
-        fprintf(stdout, "%s %s\n", app_name, MIGRATEDB_VERSION);
+        fprintf(stdout, "%s %s\n", app_name, LAUNCHDB_VERSION);
         exit(EXIT_SUCCESS);
     });
 

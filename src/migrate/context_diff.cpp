@@ -1,5 +1,5 @@
 #include <algorithm>
-#include "../context.hpp"
+#include <context.hpp>
 
 db::contex_diff get_diff(const db::context &old_ctx, const db::context &new_ctx) {
     using namespace std;

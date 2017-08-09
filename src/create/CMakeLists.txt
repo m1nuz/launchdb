@@ -1,9 +1,8 @@
 
-set(APP_NAME migrate-db)
+set(APP_NAME create-db)
 
 file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
-#file(GLOB SHARED_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} include/*.hpp)
 
 add_executable(${APP_NAME} ${SOURCES} ${HEADERS})
 add_dependencies(${APP_NAME} generate_version)
@@ -28,5 +27,4 @@ target_compile_options(${APP_NAME} PUBLIC
     -g
 )
 
-# Install
 install(TARGETS ${APP_NAME} RUNTIME DESTINATION ${INSTALL_DIR})

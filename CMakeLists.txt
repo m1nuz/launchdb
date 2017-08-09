@@ -56,39 +56,12 @@ execute_process(COMMAND ${LSB_RELEASE} -cs
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+# Shared headers
 set(SHARED_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-add_subdirectory(src/migrate)
-
-file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.cpp)
-file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*.hpp)
 file(GLOB SHARED_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} include/*.hpp)
 
-add_executable(launch-db ${SOURCES} ${HEADERS} ${SHARED_HEADERS})
-add_dependencies(launch-db generate_version)
-set_target_properties(launch-db PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO
-)
-target_include_directories(launch-db PUBLIC
-    ${SHARED_INCLUDE_PATH}
-)
-target_compile_options(launch-db PUBLIC
-    -pthread
-    -pedantic
-    -Wall
-    -Wextra
-    -Wshadow
-    -Wpointer-arith
-    -Wcast-qual
-    -Wunused-result
-    -g
-)
-#target_link_libraries(launch-db)
-
-# Install
-install(TARGETS launch-db RUNTIME DESTINATION ${INSTALL_DIR})
+add_subdirectory(src/migrate)
+add_subdirectory(src/create)
 
 # DEB package
 set(CPACK_GENERATOR "DEB")

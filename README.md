@@ -55,7 +55,7 @@ sudo dpkg -r launchdb
 ```
 
 ## Usage
-> launch-db [options] DB_PATH 
+> create-db [options] DB_PATH
 
 DB_PATH Path to database
 
@@ -67,5 +67,5 @@ Options:
 ### Example usage for Postgres
 ```sh
 createdb estoredb
-launch-db examples/estore.json | psql -d estoredb
+create-db examples/estore.json | psql -d estoredb
 ```
