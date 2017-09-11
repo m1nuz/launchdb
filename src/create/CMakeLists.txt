@@ -1,8 +1,14 @@
 
 set(APP_NAME create-db)
 
-file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
+#file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
+
+set(SOURCES main_create.cpp
+    postgres_output.cpp
+    postgres_type.cpp
+    ../process_json.cpp
+    )
 
 add_executable(${APP_NAME} ${SOURCES} ${HEADERS})
 add_dependencies(${APP_NAME} generate_version)

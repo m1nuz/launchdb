@@ -1,9 +1,13 @@
 
 set(APP_NAME migrate-db)
 
-file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
+#file(GLOB SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
 #file(GLOB SHARED_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} include/*.hpp)
+
+set(SOURCES main_migrate.cpp
+    context_diff.cpp
+    ../process_json.cpp)
 
 add_executable(${APP_NAME} ${SOURCES} ${HEADERS})
 add_dependencies(${APP_NAME} generate_version)

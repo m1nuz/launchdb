@@ -71,11 +71,53 @@ namespace db {
         bool make_transaction = true;
     };
 
-    template <typename T>
-    struct context_diff_type {
-        T added;
-        T removed;
-    };
+    struct context_diff {
+        typedef struct table_type {
+            table_type() = default;
+            table_type(const std::string &_schema, const std::string &_name, const std::string &_comment) : schema{_schema}, name{_name}, comment{_comment} {
 
-    using contex_diff = context_diff_type<context>;
+            }
+
+            std::string schema;
+            std::string name;
+            std::string comment;
+        } table_t;
+
+        typedef struct column_type {
+            column_type() = default;
+            column_type(const std::string &_schema, const std::string &_name) : schema{_schema}, name{_name} {
+
+            }
+
+            std::string schema;
+            std::string name;
+            std::string type;
+            std::string comment;
+            std::string default_value;
+            //std::size_t size;
+            bool primary_key = false;
+            bool unique_key = false;
+            bool not_null = false;
+        } column_t;
+
+        enum status_type {
+            status_added,
+            status_removed,
+            status_changed
+        };
+
+        template <typename T, typename V>
+        struct modification_t {
+            modification_t() = default;
+            modification_t(const T &t, const V &v) : status{t}, value{v} {
+
+            }
+
+            T status;
+            V value;
+        };
+
+        std::vector<modification_t<status_type, table_type>> tables;
+        std::vector<modification_t<status_type, column_t>> columns;
+    };
 }
