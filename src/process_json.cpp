@@ -60,7 +60,7 @@ extern db::context process_json(const json &j) {
                     if (column_pk)
                         pk.insert(column_name);
 
-                    all_columns.push_back(db::context::column_t{column_name, column_type, column_comment, default_value, column_pk, unique_column, column_not_null});
+                    all_columns.push_back(db::context::column_t{column_name, column_comment, {column_type, default_value, column_pk, unique_column, column_not_null}});
                 }
 
             if (tbl.find("foreign_keys") != tbl.end())

@@ -7,7 +7,9 @@ file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
 
 set(SOURCES main_migrate.cpp
     context_diff.cpp
-    ../process_json.cpp)
+    ../process_json.cpp
+    ../postgres/postgres_type.cpp
+    ../postgres/postgres_upgrade.cpp)
 
 add_executable(${APP_NAME} ${SOURCES} ${HEADERS})
 add_dependencies(${APP_NAME} generate_version)

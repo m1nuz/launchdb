@@ -41,6 +41,10 @@ std::string read_contents(const std::string &filepath) {
 db::context process_json(const json &j);
 db::context_diff get_diff(const db::context &old_ctx, const db::context &new_ctx);
 
+namespace postgres {
+    int upgrade(const db::context_diff &ctx);
+}
+
 extern int main(int argc, char *argv[]) {
     using namespace std;
 
@@ -108,6 +112,8 @@ extern int main(int argc, char *argv[]) {
     auto new_db = process_json(json::parse(to_contents));
 
     auto diff_db = get_diff(old_db, new_db);
+
+    postgres::upgrade(diff_db);
 
     return EXIT_SUCCESS;
 }

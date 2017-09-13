@@ -5,8 +5,8 @@ set(APP_NAME create-db)
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
 
 set(SOURCES main_create.cpp
-    postgres_output.cpp
-    postgres_type.cpp
+    ../postgres/postgres_output.cpp
+    ../postgres/postgres_type.cpp
     ../process_json.cpp
     )
 
