@@ -5,10 +5,14 @@
 #include <string>
 
 namespace db {
+    using std::string;
+    using std::vector;
+    using std::set;
+
     typedef struct column_value_type {
         column_value_type() = default;
-        column_value_type(const std::string &_type_name,
-                          const std::string &_default_value,
+        column_value_type(const string &_type_name,
+                          const string &_default_value,
                           const bool _primary_key = false,
                           const bool _unique_key = false,
                           const bool _not_null = false)
@@ -18,78 +22,107 @@ namespace db {
               unique_key{_unique_key},
               not_null{_not_null} {
 
-        }
+        }        
 
-        std::string type_name;
-        std::string default_value;
+        string type_name;
+        string default_value;
         //std::size_t size;
         bool primary_key = false;
         bool unique_key = false;
         bool not_null = false;
     } column_value_t;
 
-    struct context {
-        typedef std::set<std::string> primary_key_t;
+    inline bool operator==(const column_value_type &lhs, const column_value_type &rhs) noexcept {
+        return lhs.type_name == rhs.type_name &&
+                lhs.default_value == rhs.default_value &&
+                lhs.primary_key == rhs.primary_key &&
+                lhs.unique_key == rhs.unique_key &&
+                lhs.not_null == rhs.not_null;
+    }
 
-        typedef struct foreign_key_type {
-            std::string ref_table;
-            std::string ref_schema;
-            std::vector<std::string> columns;
-            std::vector<std::string> ref_columns;
-        } foreign_key_t;
+    typedef struct column_type final : column_value_type  {
+        column_type() = default;
+        column_type(const string &_name,
+                    const string &_comment,
+                    const column_value_type &_value_type)
+            : column_value_type{_value_type}, name{_name}, comment{_comment} {
 
-        typedef std::vector<foreign_key_t> foreign_keys_t;
+        }
 
-        typedef struct column_type : column_value_type {
-            column_type() = default;
-            column_type(const std::string &_name,
-                        const std::string &_comment,
-                        const column_value_type &_value_type)
-                : column_value_type{_value_type}, name{_name}, comment{_comment} {
+        string name;
+        string comment;
+    } column_t;
 
-            }
+    typedef set<string> primary_key_t;
 
-            std::string name;
-            std::string comment;
-        } column_t;
+    typedef struct foreign_key_type final {
+        string ref_table;
+        string ref_schema;
+        vector<string> columns;
+        vector<string> ref_columns;
+    } foreign_key_t;
 
-        typedef struct table_type {
-            std::string schema_name;
-            std::string table_name;
-            std::string comment;
-            std::vector<column_t> columns;
-            primary_key_t primary_key;
-            std::vector<foreign_key_t> foreign_keys;
-        } table_t;
+    typedef vector<foreign_key_t> foreign_keys_t;
 
-        typedef std::string schema_t;
+    typedef struct table_type final {
+        table_type() = default;
+        table_type(const string &_schema,
+                   const string &_name,
+                   const string &_comment,
+                   const vector<column_t> &_columns,
+                   const primary_key_t &_pk,
+                   const vector<foreign_key_t> &_fks)
+            : schema_name{_schema},
+              table_name{_name},
+              comment{_comment},
+              columns{_columns},
+              primary_key{_pk},
+              foreign_keys{_fks} {
 
-        typedef struct index_type {
-            std::string schema_name;
-            std::string table_name;
-            std::string name;
-            std::string column_name;
-            //bool if_exists;
-        } index_t;
+        }
 
-        typedef struct user_type {
-            std::string name;
-            std::string password;
-            //bool if_exists;
-        } user_t;
+        table_type(const string &_schema, const string &_name, const string &_comment)
+            : schema_name{_schema}, table_name{_name}, comment{_comment} {
 
-        typedef struct privilege_type {
-            std::string user;
-            std::string name;
-        } privilege_t;
+        }
 
-        std::string owner;
+        string schema_name;
+        string table_name;
+        string comment;
+        vector<column_t> columns;
+        primary_key_t primary_key;
+        vector<foreign_key_t> foreign_keys;
+    } table_t;
 
-        std::set<schema_t> schemas;
-        std::vector<table_t> tables;
-        std::vector<index_t> indices;
-        std::vector<user_t> users;
-        std::vector<privilege_t> privileges;
+    typedef string schema_t;
+
+    typedef struct index_type final {
+        string schema_name;
+        string table_name;
+        string name;
+        string column_name;
+        //bool if_exists;
+    } index_t;
+
+    typedef struct user_type final {
+        string name;
+        string password;
+        //bool if_exists;
+    } user_t;
+
+    typedef struct privilege_type final {
+        string user;
+        string name;
+    } privilege_t;
+
+    struct context final {
+        string owner;
+
+        set<schema_t> schemas;
+        vector<table_t> tables;
+        vector<index_t> indices;
+        vector<user_t> users;
+        vector<privilege_t> privileges;
     };
 
     struct config {
@@ -97,29 +130,17 @@ namespace db {
     };
 
     struct context_diff {
-        typedef struct table_type {
-            table_type() = default;
-            table_type(const std::string &_schema, const std::string &_name, const std::string &_comment)
-                : schema{_schema}, name{_name}, comment{_comment} {
-
-            }
-
-            std::string schema;
-            std::string name;
-            std::string comment;
-        } table_t;
-
-        typedef struct column_type : column_value_t {
+        typedef struct column_type final : column_value_t {
             column_type() = default;
-            column_type(const std::string &_schema, const std::string &_table_name, const std::string &_name, const column_value_type &_value_type)
+            column_type(const string &_schema, const string &_table_name, const string &_name, const column_value_type &_value_type)
                 : column_value_t{_value_type}, schema_name{_schema}, table_name{_table_name}, column_name{_name} {
 
             }
 
-            std::string schema_name;
-            std::string table_name;
-            std::string column_name;
-            std::string comment;
+            string schema_name;
+            string table_name;
+            string column_name;
+            string comment;
         } column_t;
 
         enum status_type {
@@ -139,7 +160,7 @@ namespace db {
             V value;
         };
 
-        std::vector<modification_t<status_type, table_type>> tables;
-        std::vector<modification_t<status_type, column_t>> columns;
+        vector<modification_t<status_type, table_t>> tables;
+        vector<modification_t<status_type, column_t>> columns;
     };
 }

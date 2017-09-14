@@ -27,7 +27,7 @@ db::context_diff get_diff(const db::context &old_ctx, const db::context &new_ctx
         if (!contains_table(new_ctx.tables, t)) {
             auto dt = t;
             dt.columns.clear();
-            ctx_diff.tables.emplace_back(db::context_diff::status_removed, db::context_diff::table_t{dt.schema_name, dt.table_name, dt.comment});
+            ctx_diff.tables.emplace_back(db::context_diff::status_removed, db::table_t{dt.schema_name, dt.table_name, dt.comment});
         }
     }
 
@@ -36,7 +36,7 @@ db::context_diff get_diff(const db::context &old_ctx, const db::context &new_ctx
         if (!contains_table(old_ctx.tables, t)) {
             auto dt = t;
             dt.columns.clear();
-            ctx_diff.tables.emplace_back(db::context_diff::status_added, db::context_diff::table_t{dt.schema_name, dt.table_name, dt.comment});
+            ctx_diff.tables.emplace_back(db::context_diff::status_added, db::table_t{dt.schema_name, dt.table_name, dt.comment});
         }
     }
 

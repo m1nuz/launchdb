@@ -23,6 +23,38 @@
       ]
     },
     {
+      "name": "supplier",
+      "schema": "estore",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "not_null": true,
+          "primary_key": true
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "not_null": true
+        },
+        {
+          "name": "country",
+          "type": "str",
+          "not_null": true
+        },
+        {
+          "name": "address",
+          "type": "str",
+          "not_null": true
+        },
+        {
+          "name": "phone_number",
+          "type": "str",
+          "unique": true
+        }
+      ]
+    },
+    {
       "name": "customer",
       "schema": "estore",
       "columns": [
@@ -145,6 +177,23 @@
           "name": "quantity",
           "type": "int",
           "not_null": true
+        },
+        {
+          "name": "supplier",
+          "type": "int",
+          "not_null": true
+        }
+      ],
+      "foreign_keys": [
+        {
+          "schema": "estore",
+          "table": "supplier",
+          "columns": [
+            "supplier"
+          ],
+          "references": [
+            "id"
+          ]
         }
       ]
     },
