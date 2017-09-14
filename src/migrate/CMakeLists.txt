@@ -9,6 +9,7 @@ set(SOURCES main_migrate.cpp
     context_diff.cpp
     ../process_json.cpp
     ../postgres/postgres_type.cpp
+    ../postgres/postgres_output.cpp
     ../postgres/postgres_upgrade.cpp)
 
 add_executable(${APP_NAME} ${SOURCES} ${HEADERS})

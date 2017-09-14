@@ -25,18 +25,28 @@ db::context_diff get_diff(const db::context &old_ctx, const db::context &new_ctx
     // removed tables
     for (const auto &t : old_ctx.tables) {
         if (!contains_table(new_ctx.tables, t)) {
-            auto dt = t;
-            dt.columns.clear();
-            ctx_diff.tables.emplace_back(db::context_diff::status_removed, db::table_t{dt.schema_name, dt.table_name, dt.comment});
+            ctx_diff.tables.emplace_back(db::context_diff::status_removed, t);
         }
     }
 
     // added tables
     for (const auto &t: new_ctx.tables) {
         if (!contains_table(old_ctx.tables, t)) {
-            auto dt = t;
-            dt.columns.clear();
-            ctx_diff.tables.emplace_back(db::context_diff::status_added, db::table_t{dt.schema_name, dt.table_name, dt.comment});
+            ctx_diff.tables.emplace_back(db::context_diff::status_added, t);
+
+            // indices from foreign keys
+            for (const auto &fk : t.foreign_keys) {
+                string ix_name;
+                string ix_column_name;
+
+                for (const auto &n : fk.columns)
+                    ix_name += (ix_name.empty() ? "" : "_") + n;
+
+                for (const auto &n : fk.ref_columns)
+                    ix_column_name = (ix_column_name.empty() ? "" : "_") + n;
+
+                ctx_diff.indices.emplace_back(db::context_diff::status_added, db::index_t{t.schema_name, t.table_name, ix_name, ix_column_name});
+            }
         }
     }
 

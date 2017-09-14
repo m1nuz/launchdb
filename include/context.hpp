@@ -162,5 +162,6 @@ namespace db {
 
         vector<modification_t<status_type, table_t>> tables;
         vector<modification_t<status_type, column_t>> columns;
+        vector<modification_t<status_type, index_t>> indices;
     };
 }
