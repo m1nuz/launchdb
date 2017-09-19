@@ -22,6 +22,15 @@ Database creation tool
 - [x] Users
 - [x] Privileges
 
+### Sqlite
+- [ ] Schema creation
+- [ ] Tables
+- [ ] Pimary keys
+- [ ] Foreign keys
+- [ ] Indices
+- [ ] Comments
+
+
 ## How to Build
 ```sh
 cd build
