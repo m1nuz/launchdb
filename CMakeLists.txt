@@ -62,6 +62,7 @@ file(GLOB SHARED_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} include/*.hpp)
 
 add_subdirectory(src/migrate)
 add_subdirectory(src/create)
+add_subdirectory(src/grab)
 
 # DEB package
 set(CPACK_GENERATOR "DEB")
