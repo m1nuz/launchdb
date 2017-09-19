@@ -11,7 +11,7 @@ namespace postgres {
 
     std::string to_type(const db::column_value_type &c);
 
-    int output(const db::table_t &t, string owner) {
+    int render(const db::table_t &t, string owner) {
         using namespace std;
 
         const auto full_table_name = (t.schema_name.empty() ? t.table_name : t.schema_name + "." + t.table_name);
@@ -89,7 +89,7 @@ namespace postgres {
         return 0;
     }
 
-    int output(const std::vector<db::index_t> &indices) {
+    int render(const std::vector<db::index_t> &indices) {
         using namespace std;
 
         for (const auto &ix : indices) {
@@ -101,7 +101,7 @@ namespace postgres {
         return 0;
     }
 
-    extern int output(const db::context &ctx, const db::config &cfg) {
+    extern int render(const db::context &ctx, const db::config &cfg) {
         using namespace std;        
 
         if (cfg.make_transaction)
@@ -136,7 +136,7 @@ namespace postgres {
             cout << "\n\n";
 
         for (const auto &t : ctx.tables) {
-            output(t, ctx.owner);
+            render(t, ctx.owner);
             cout << '\n';
         }
 
@@ -148,7 +148,7 @@ namespace postgres {
                  << ix.schema_name << (ix.schema_name.empty() ? "" : ".") << ix.table_name << " (" << ix.name << ")"
                  << ";\n";
         }*/
-        output(ctx.indices);
+        render(ctx.indices);
 
         if (!ctx.privileges.empty())
             cout << "\n\n";

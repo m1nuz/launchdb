@@ -7,8 +7,8 @@ using json = nlohmann::json;
 using std::string;
 
 namespace postgres {
-    int output(const db::table_t &t, string owner);
-    int output(const std::vector<db::index_t> &indices);
+    int render(const db::table_t &t, string owner);
+    int render(const std::vector<db::index_t> &indices);
 
     std::string to_type(const db::column_value_type &c);
 
@@ -33,13 +33,13 @@ namespace postgres {
 
         for (const auto &t : ctx.tables) {
             if (t.status == db::context_diff::status_added) {
-                output(t.value, {});
+                render(t.value, {});
             }
         }
 
         for (const auto ix : ctx.indices) {
             if (ix.status == db::context_diff::status_added) {
-                output({ix.value});
+                render({ix.value});
             }
         }
 

@@ -9,7 +9,7 @@ set(SOURCES main_migrate.cpp
     context_diff.cpp
     ../process_json.cpp
     ../postgres/postgres_type.cpp
-    ../postgres/postgres_output.cpp
+    ../postgres/render.cpp
     ../postgres/postgres_upgrade.cpp)
 
 add_executable(${APP_NAME} ${SOURCES} ${HEADERS})
@@ -33,6 +33,9 @@ target_compile_options(${APP_NAME} PUBLIC
     -Wcast-qual
     -Wunused-result
     -g
+)
+target_link_libraries(${APP_NAME} PUBLIC
+    pg_render
 )
 
 # Install

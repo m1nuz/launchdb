@@ -60,6 +60,7 @@ execute_process(COMMAND ${LSB_RELEASE} -cs
 set(SHARED_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
 file(GLOB SHARED_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} include/*.hpp)
 
+add_subdirectory(src/postgres)
 add_subdirectory(src/migrate)
 add_subdirectory(src/create)
 add_subdirectory(src/grab)

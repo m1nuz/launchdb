@@ -13,7 +13,7 @@
 
 #include <version.h>
 
-#include <context.hpp>
+#include <postgres/render.hpp>
 
 using json = nlohmann::json;
 
@@ -22,10 +22,6 @@ db::context process_json(const json &j);
 volatile int log_level = DEFAULT_LOG_LEVEL;
 
 typedef std::function<int (const db::context &, const db::config &)> generator_t;
-
-namespace postgres {
-    int output(const db::context &ctx, const db::config &cfg);
-}
 
 extern int main(int argc, char *argv[]) {
     using namespace std;
@@ -36,7 +32,7 @@ extern int main(int argc, char *argv[]) {
     string gen_name = "postgres";
 
     unordered_map<string, generator_t> generators {
-        {"postgres", postgres::output}
+        {"postgres", postgres::render}
     };
 
     xargs::args args;

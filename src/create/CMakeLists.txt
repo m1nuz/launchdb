@@ -5,8 +5,6 @@ set(APP_NAME create-db)
 file(GLOB HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
 
 set(SOURCES main_create.cpp
-    ../postgres/postgres_output.cpp
-    ../postgres/postgres_type.cpp
     ../process_json.cpp
     )
 
@@ -31,6 +29,9 @@ target_compile_options(${APP_NAME} PUBLIC
     -Wcast-qual
     -Wunused-result
     -g
+)
+target_link_libraries(${APP_NAME} PUBLIC
+    pg_render
 )
 
 install(TARGETS ${APP_NAME} RUNTIME DESTINATION ${INSTALL_DIR})
