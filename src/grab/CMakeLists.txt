@@ -25,6 +25,9 @@ target_compile_options(${APP_NAME} PUBLIC
     -Wunused-result
     -g
 )
+target_link_libraries(${APP_NAME} PUBLIC
+    -lpq
+)
 
 # Install
 install(TARGETS ${APP_NAME} RUNTIME DESTINATION ${INSTALL_DIR})
