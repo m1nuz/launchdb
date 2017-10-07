@@ -49,4 +49,23 @@ namespace postgres {
 
         return type_name;
     }
+
+    db::column_value_type from_type(const std::string &t, const std::string def) {
+        if (t == "integer")
+            return db::column_value_type{"int", def};
+
+        if (t == "text")
+            return db::column_value_type{"text", def};
+
+        if (t == "bytea")
+            return db::column_value_type{"buffer", def};
+
+        if (t == "numeric")
+            return db::column_value_type{"decimal", def};
+
+        if (t == "boolean")
+            return db::column_value_type{"bool", def};
+
+        return db::column_value_type{};
+    }
 }

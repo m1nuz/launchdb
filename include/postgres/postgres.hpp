@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <format.hpp>
+
 #include <postgresql/libpq-fe.h>
 
 namespace postgres {
@@ -49,7 +51,7 @@ namespace postgres {
         public:
 
             class row {
-            protected:
+            public:
                 friend class result;
 
                 const result& _result;
@@ -57,30 +59,37 @@ namespace postgres {
                 const size_t _offset;
                 const size_t _columns;
 
-                row(const result &res, const size_t r, const size_t offset, const size_t columns)
+                row(const result &res, const size_t r, const size_t offset, const size_t columns) noexcept
                     : _result{res}
                     , _row{r}
                     , _offset{offset}
                     , _columns{columns} {
                 }
-            };
+
+             };
 
             class const_iterator : row {
             public:
                 friend class result;
 
-                friend bool operator !=(const const_iterator &lhs, const const_iterator &rhs) {
+                friend bool operator !=(const const_iterator &lhs, const const_iterator &rhs) noexcept {
                     return lhs._row != rhs._row;
                 }
 
-            private:
-                const_iterator(const row& r)
-                    : row{r} {
+                const_iterator& operator++()
+                {
+                    ++_row;
+                    return *this;
                 }
 
                 const row& operator*() const {
                     return *this;
                 }
+
+            private:
+                const_iterator(const row& r) noexcept
+                    : row{r} {
+                }                
             };
 
             result() = default;
@@ -120,6 +129,22 @@ namespace postgres {
                 return _rows != 0;
             }
 
+            row at(const size_t r) const {
+                return row(*this, r, 0, _columns);
+            }
+
+            row operator[](const size_t r) const {
+                return row(*this, r, 0, _columns);
+            }
+
+            bool is_null(const size_t _row, const size_t _column) const {
+                return PQgetisnull(_res.get(), _row, _column) == 1;
+            }
+
+            const char* get(const size_t _row, const size_t _column) const {
+                return PQgetvalue(_res.get(), _row, _column);
+            }
+
         private:
             shared_ptr<PGresult> _res;
             const size_t _columns;
@@ -129,6 +154,14 @@ namespace postgres {
         static result execute(const connection &conn, const std::string &text) {
             query q{conn};
             return q.execute(text);
+        }
+
+        template< typename... Args >
+        static result execute(const connection &conn, const std::string &text, Args&&... args ) {
+            query q{conn};
+            const auto t = xfmt::format(text, std::forward<Args>(args) ...);
+
+            return q.execute(t);
         }
 
         query() = default;
@@ -143,4 +176,10 @@ namespace postgres {
     private:
         shared_ptr<PGconn> _conn;
     };
+
+    template <typename T> T get(const query::result::row &r, const size_t column);
+
+    template<> inline string get<string>(const query::result::row &r, const size_t column) {
+        return {r._result.get(r._row, column)};
+    }
 }

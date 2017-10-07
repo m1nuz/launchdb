@@ -1,8 +1,80 @@
 #include <cstdlib>
+#include <fstream>
+
 #include <xargs.hpp>
 
 #include <postgres/postgres.hpp>
+#include <postgres/render.hpp>
+#include <context.hpp>
 #include <version.h>
+#include <format.hpp>
+
+#include <json.hpp>
+using json = nlohmann::json;
+
+json make_json(const db::context &ctx);
+
+namespace db {
+    using json = nlohmann::json;
+
+    void to_json(json& j, const column_t &c) {
+        j["name"] = c.name;
+        j["type"] = c.type_name;
+
+        if (!c.comment.empty())
+            j["comment"] = c.comment;
+
+        if (c.not_null)
+            j["not_null"] = c.not_null;
+
+        if (c.primary_key)
+            j["primary_key"] = c.primary_key;
+
+        if (c.unique_key)
+            j["unique"] = c.unique_key;
+
+        if (!c.default_value.empty())
+            j["default"] = c.default_value;
+    }
+
+    void to_json(json& j, const table_t &t) {
+        j["name"] = t.table_name;
+        j["schema"] = t.schema_name;
+
+        auto columns = json::array();
+        for (const auto &c : t.columns) {
+            json jc;
+            to_json(jc, c);
+            columns.push_back(jc);
+        }
+
+        j["columns"] = columns;
+    }
+
+    /*void from_json(const json& j, table_t& p) {
+
+    }*/
+}
+
+namespace postgres {
+    std::string to_type(const db::column_value_type &c);
+    db::column_value_type from_type(const std::string &t, const std::string def = std::string{});
+}
+
+extern json make_json(const db::context &ctx) {
+    using namespace db;
+    json j;
+
+    auto tables = json::array();
+    for (const auto &t : ctx.tables) {
+        json jt;
+        to_json(jt, t);
+        tables.push_back(jt);
+    }
+
+    j["tables"] = tables;
+    return j;
+}
 
 extern int main(int argc, char *argv[]) {
     using namespace std;
@@ -48,10 +120,73 @@ extern int main(int argc, char *argv[]) {
         return 1;
     }
 
-    auto res = query::execute(conn, "select table_schema, table_name from information_schema.tables where table_schema not in ('pg_catalog', 'information_schema')");
+    auto get_columns = [&](const auto &s_name, const auto &t_name) {
+        auto res = query::execute(conn, "select "
+                                        "   column_name, data_type, column_default "
+                                        "from "
+                                        "   information_schema.columns "
+                                        "where "
+                                        "   table_schema = '%1' "
+                                        "   and table_name = '%2'", s_name, t_name);
+
+// primary key
+//        select
+//           c.column_name,
+//           c.data_type
+//        from
+//           information_schema.table_constraints tc
+//           join
+//              information_schema.constraint_column_usage as ccu using (constraint_schema, constraint_name)
+//           join
+//              information_schema.columns as c
+//              on c.table_schema = tc.constraint_schema
+//              and tc.table_name = c.table_name
+//              and ccu.column_name = c.column_name
+//        where
+//           constraint_type = 'PRIMARY KEY'
+//           and tc.table_name = 'mytable';
+
+        vector<db::column_t> columns;
+
+        for (const auto &r : res) {
+            const auto column_name = get<string>(r, 0);
+            const auto column_type = get<string>(r, 1);
+            const auto column_default = get<string>(r, 2);
+
+            columns.push_back({column_name, string{}, from_type(column_type, column_default)});
+        }
+
+        return columns;
+    };
+
+    auto res = query::execute(conn, "select "
+                                    "   table_schema, "
+                                    "   table_name "
+                                    "from "
+                                    "   information_schema.tables "
+                                    "where "
+                                    "   table_schema not in "
+                                    "   ( "
+                                    "      'pg_catalog', "
+                                    "      'information_schema' "
+                                    "   )");
     if (!res) {
         fprintf(stdout, "%s\n", res.error_message().c_str());
     }
+
+    db::context ctx;
+
+    for (const auto &r : res) {
+        const auto schema_name = get<string>(r, 0);
+        const auto table_name = get<string>(r, 1);
+
+        auto columns = get_columns(schema_name, table_name);
+        ctx.tables.push_back(db::table_t{schema_name, table_name, string{}, columns, {}, {}});
+    }
+
+    const auto j = make_json(ctx);
+
+    cout << setw(4) << j << endl;
 
     return 0;
 }

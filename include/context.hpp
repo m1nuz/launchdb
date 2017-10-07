@@ -49,6 +49,8 @@ namespace db {
 
         }
 
+        column_type& operator =(const column_type &) = default;
+
         string name;
         string comment;
     } column_t;
@@ -85,6 +87,8 @@ namespace db {
             : schema_name{_schema}, table_name{_name}, comment{_comment} {
 
         }
+
+        //table_type& operator =(const table_type &) = default;
 
         string schema_name;
         string table_name;
