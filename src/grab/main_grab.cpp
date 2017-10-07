@@ -181,7 +181,7 @@ extern int main(int argc, char *argv[]) {
         const auto table_name = get<string>(r, 1);
 
         auto columns = get_columns(schema_name, table_name);
-        ctx.tables.push_back(db::table_t{schema_name, table_name, string{}, columns, {}, {}});
+        ctx.tables.push_back(db::table_t{schema_name, table_name, string{}, columns, db::primary_key_t{}, {}});
     }
 
     const auto j = make_json(ctx);
