@@ -11,6 +11,8 @@
 #include <journal.hpp>
 #include <version.h>
 
+#include <postgres/upgrage.hpp>
+
 using json = nlohmann::json;
 
 volatile int log_level = DEFAULT_LOG_LEVEL;
@@ -40,10 +42,6 @@ std::string read_contents(const std::string &filepath) {
 
 db::context process_json(const json &j);
 db::context_diff get_diff(const db::context &old_ctx, const db::context &new_ctx);
-
-namespace postgres {
-    int upgrade(const db::context_diff &ctx);
-}
 
 extern int main(int argc, char *argv[]) {
     using namespace std;
