@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <cstring>
 
 #include <format.hpp>
 
@@ -181,5 +182,10 @@ namespace postgres {
 
     template<> inline string get<string>(const query::result::row &r, const size_t column) {
         return {r._result.get(r._row, column)};
+    }
+
+    template<> inline bool get<bool>(const query::result::row &r, const size_t column) {
+        return strcasecmp(r._result.get(r._row, column), "true") == 0
+                || strcasecmp(r._result.get(r._row, column), "yes");
     }
 }

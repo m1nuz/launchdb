@@ -50,22 +50,24 @@ namespace postgres {
         return type_name;
     }
 
-    db::column_value_type from_type(const std::string &t, const std::string def) {
+    db::column_value_type from_type(const std::string &t, const std::string def, const bool _primary_key, const bool _unique_key, const bool _not_null) {
+        const auto def_value = _primary_key ? std::string{} : def;
+
         if (t == "integer")
-            return db::column_value_type{"int", def};
+            return db::column_value_type{"int", def_value, _primary_key, _unique_key, _not_null};
 
         if (t == "text")
-            return db::column_value_type{"text", def};
+            return db::column_value_type{"text", def_value, _primary_key, _unique_key, _not_null};
 
         if (t == "bytea")
-            return db::column_value_type{"buffer", def};
+            return db::column_value_type{"buffer", def_value, _primary_key, _unique_key, _not_null};
 
         if (t == "numeric")
-            return db::column_value_type{"decimal", def};
+            return db::column_value_type{"decimal", def_value, _primary_key, _unique_key, _not_null};
 
         if (t == "boolean")
-            return db::column_value_type{"bool", def};
+            return db::column_value_type{"bool", def_value, _primary_key, _unique_key, _not_null};
 
-        return db::column_value_type{};
+        return db::column_value_type{t, def_value, _primary_key, _unique_key, _not_null};
     }
 }

@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <fstream>
+#include <set>
 
 #include <xargs.hpp>
 
@@ -58,7 +59,7 @@ namespace db {
 
 namespace postgres {
     std::string to_type(const db::column_value_type &c);
-    db::column_value_type from_type(const std::string &t, const std::string def = std::string{});
+    db::column_value_type from_type(const std::string &t, const std::string def, const bool _primary_key = false, const bool _unique_key = false, const bool _not_null = false);
 }
 
 extern json make_json(const db::context &ctx) {
@@ -85,7 +86,7 @@ extern int main(int argc, char *argv[]) {
     string db_type = "postgres";
     string host = "localhost";
     string user = "james";
-    string pass = "james";
+    string pass;
 
     xargs::args args;
     args.add_arg("DB_NAME", "Database name", [&] (const auto &v) {
@@ -95,6 +96,10 @@ extern int main(int argc, char *argv[]) {
     }).add_option("-h", "Display help", [&] () {
         puts(args.usage(argv[0]).c_str());
         exit(EXIT_SUCCESS);
+    }).add_option("-u", "User name for connection", [&] (const auto &v) {
+        user = v;
+    }).add_option("-p", "Password of user for connection", [&] (const auto &v) {
+        pass = v;
     }).add_option("-v", "Version", [&] () {
         fprintf(stdout, "%s %s\n", app_name, LAUNCHDB_VERSION);
         exit(EXIT_SUCCESS);
@@ -116,35 +121,102 @@ extern int main(int argc, char *argv[]) {
     connection conn = connection::create(conn_info);
 
     if (!conn) {
-        fprintf(stdout, "%s\n", conn.error_message().c_str());
+        fprintf(stderr, "%s\n", conn.error_message().c_str());
         return 1;
     }
 
+    auto get_primary_keys = [&] (const auto & t_name) {
+        auto res = query::execute(conn, "select "
+                                        "   c.column_name, "
+                                        "   c.data_type "
+                                        "from "
+                                        "   information_schema.table_constraints tc "
+                                        "   join "
+                                        "      information_schema.constraint_column_usage as ccu using (constraint_schema, constraint_name) "
+                                        "   join "
+                                        "      information_schema.columns as c "
+                                        "      on c.table_schema = tc.constraint_schema "
+                                        "      and tc.table_name = c.table_name "
+                                        "      and ccu.column_name = c.column_name "
+                                        "where "
+                                        "   constraint_type = 'PRIMARY KEY' "
+                                        "   and tc.table_name = '%1';", t_name);
+
+        if (!res) {
+            fprintf(stderr, "%s\n", res.error_message().c_str());
+        }
+
+        set<string> primary_keys;
+
+        for (const auto &r : res) {
+            const auto column_name = get<string>(r, 0);
+
+            if (!column_name.empty())
+                primary_keys.insert(column_name);
+        }
+
+        return primary_keys;
+    };
+
+    auto get_comment = [&] (const auto &s_name, const auto &t_name, const auto &c_name) {
+        auto res = query::execute(conn, "select "
+                                        "   description "
+                                        "from "
+                                        "   pg_catalog.pg_description "
+                                        "where "
+                                        "   objsubid = "
+                                        "   ( "
+                                        "      select "
+                                        "         ordinal_position "
+                                        "      from "
+                                        "         information_schema.columns "
+                                        "      where "
+                                        "         table_name = '%2' "
+                                        "         and column_name = '%3' "
+                                        "         and table_schema = '%1' "
+                                        "   ) "
+                                        "   and objoid = "
+                                        "   ( "
+                                        "      select "
+                                        "         oid "
+                                        "      from "
+                                        "         pg_class "
+                                        "      where "
+                                        "         relname = '%2' "
+                                        "         and relnamespace = "
+                                        "         ( "
+                                        "            select "
+                                        "               oid "
+                                        "            from "
+                                        "               pg_catalog.pg_namespace "
+                                        "            where "
+                                        "               nspname = '%1' "
+                                        "         ) "
+                                        "   ) ", s_name, t_name, c_name);
+
+        if (!res) {
+            fprintf(stderr, "s=%s t=%s c=%s\n", s_name.c_str(), t_name.c_str(), c_name.c_str());
+            fprintf(stderr, "%s\n", res.error_message().c_str());
+        }
+
+        return res.size() > 0 ? get<string>(res[0], 0) : string{};
+    };
+
     auto get_columns = [&](const auto &s_name, const auto &t_name) {
         auto res = query::execute(conn, "select "
-                                        "   column_name, data_type, column_default "
+                                        "   column_name, data_type, column_default, is_nullable "
                                         "from "
                                         "   information_schema.columns "
                                         "where "
                                         "   table_schema = '%1' "
-                                        "   and table_name = '%2'", s_name, t_name);
+                                        "   and table_name = '%2' "
+                                        "order by ordinal_position ", s_name, t_name);
 
-// primary key
-//        select
-//           c.column_name,
-//           c.data_type
-//        from
-//           information_schema.table_constraints tc
-//           join
-//              information_schema.constraint_column_usage as ccu using (constraint_schema, constraint_name)
-//           join
-//              information_schema.columns as c
-//              on c.table_schema = tc.constraint_schema
-//              and tc.table_name = c.table_name
-//              and ccu.column_name = c.column_name
-//        where
-//           constraint_type = 'PRIMARY KEY'
-//           and tc.table_name = 'mytable';
+        if (!res) {
+            fprintf(stderr, "%s\n", res.error_message().c_str());
+        }
+
+        const auto primary_keys = get_primary_keys(t_name);
 
         vector<db::column_t> columns;
 
@@ -152,37 +224,49 @@ extern int main(int argc, char *argv[]) {
             const auto column_name = get<string>(r, 0);
             const auto column_type = get<string>(r, 1);
             const auto column_default = get<string>(r, 2);
+            const auto column_nullable = get<bool>(r, 3);
+            const auto column_comment = get_comment(s_name, t_name, column_name);
 
-            columns.push_back({column_name, string{}, from_type(column_type, column_default)});
+            const auto is_primary_key = primary_keys.find(column_name) != primary_keys.cend();
+
+            columns.push_back({column_name, column_comment, from_type(column_type, column_default, is_primary_key, false, !column_nullable)});
         }
 
         return columns;
     };
 
-    auto res = query::execute(conn, "select "
-                                    "   table_schema, "
-                                    "   table_name "
-                                    "from "
-                                    "   information_schema.tables "
-                                    "where "
-                                    "   table_schema not in "
-                                    "   ( "
-                                    "      'pg_catalog', "
-                                    "      'information_schema' "
-                                    "   )");
-    if (!res) {
-        fprintf(stdout, "%s\n", res.error_message().c_str());
-    }
+    auto get_tables = [&] () {
+        auto res = query::execute(conn, "select "
+                                        "   table_schema, "
+                                        "   table_name "
+                                        "from "
+                                        "   information_schema.tables "
+                                        "where "
+                                        "   table_schema not in "
+                                        "   ( "
+                                        "      'pg_catalog', "
+                                        "      'information_schema' "
+                                        "   )");
+        if (!res) {
+            fprintf(stderr, "%s\n", res.error_message().c_str());
+        }
+
+        vector<db::table_t> tables;
+        tables.reserve(res.size());
+
+        for (const auto &r : res) {
+            const auto schema_name = get<string>(r, 0);
+            const auto table_name = get<string>(r, 1);
+
+            auto columns = get_columns(schema_name, table_name);
+            tables.push_back(db::table_t{schema_name, table_name, string{}, columns, db::primary_key_t{}, {}});
+        }
+
+        return tables;
+    };
 
     db::context ctx;
-
-    for (const auto &r : res) {
-        const auto schema_name = get<string>(r, 0);
-        const auto table_name = get<string>(r, 1);
-
-        auto columns = get_columns(schema_name, table_name);
-        ctx.tables.push_back(db::table_t{schema_name, table_name, string{}, columns, db::primary_key_t{}, {}});
-    }
+    ctx.tables = get_tables();
 
     const auto j = make_json(ctx);
 
