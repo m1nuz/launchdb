@@ -12,6 +12,8 @@
 
 #define DEFAULT_LOG_LEVEL 6
 
+#ifdef JOURNAL_C_FORMAT
+
 #define LOG(fp, prefix, postfix, tag, ...) do { \
     auto __tv = std::time(NULL); \
     char timestamp_str[100]; \
@@ -21,6 +23,24 @@
     fputs(postfix, fp); \
     fflush(fp); \
     } while(0)
+
+#else
+
+#include <format.hpp>
+
+#define LOG(fp, prefix, postfix, tag, ...) do { \
+    auto __tv = std::time(NULL); \
+    char timestamp_str[100]; \
+    std::strftime(timestamp_str, sizeof(timestamp_str), "%F %T", std::localtime(&__tv)); \
+    const auto sstr = xfmt::format(__VA_ARGS__); \
+    fprintf(fp, "%s %s: [%s] ", timestamp_str, prefix, tag); \
+    fputs(sstr.c_str(), fp); \
+    fputs(postfix, fp); \
+    fflush(fp); \
+    } while(0)
+
+
+#endif
 
 #define LOG_CRITICAL(tag, ...) if (log_level >= LOG_LEVEL_CRITICAL) LOG(stderr, "\x1b[39;41;1mC", "\x1b[0m\n", tag, __VA_ARGS__)
 #define LOG_ERROR(tag, ...) if (log_level >= LOG_LEVEL_ERROR) LOG(stderr, "\x1b[31;1mE", "\x1b[0m\n", tag, __VA_ARGS__)

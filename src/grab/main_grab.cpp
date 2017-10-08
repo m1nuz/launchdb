@@ -6,14 +6,14 @@
 
 #include <postgres/postgres.hpp>
 #include <postgres/render.hpp>
+#include <postgres/process.hpp>
 #include <context.hpp>
 #include <version.h>
 #include <format.hpp>
+#include <journal.hpp>
 
 #include <json.hpp>
 using json = nlohmann::json;
-
-json make_json(const db::context &ctx);
 
 namespace db {
     using json = nlohmann::json;
@@ -57,11 +57,6 @@ namespace db {
     }*/
 }
 
-namespace postgres {
-    std::string to_type(const db::column_value_type &c);
-    db::column_value_type from_type(const std::string &t, const std::string def, const bool _primary_key = false, const bool _unique_key = false, const bool _not_null = false);
-}
-
 extern json make_json(const db::context &ctx) {
     using namespace db;
     json j;
@@ -76,6 +71,8 @@ extern json make_json(const db::context &ctx) {
     j["tables"] = tables;
     return j;
 }
+
+volatile int log_level = DEFAULT_LOG_LEVEL;
 
 extern int main(int argc, char *argv[]) {
     using namespace std;
@@ -121,7 +118,7 @@ extern int main(int argc, char *argv[]) {
     connection conn = connection::create(conn_info);
 
     if (!conn) {
-        fprintf(stderr, "%s\n", conn.error_message().c_str());
+        LOG_ERROR(app_name, "%1", conn.error_message());
         return 1;
     }
 
@@ -143,7 +140,7 @@ extern int main(int argc, char *argv[]) {
                                         "   and tc.table_name = '%1';", t_name);
 
         if (!res) {
-            fprintf(stderr, "%s\n", res.error_message().c_str());
+            LOG_ERROR(app_name, "%1", res.error_message());
         }
 
         set<string> primary_keys;
@@ -195,8 +192,8 @@ extern int main(int argc, char *argv[]) {
                                         "   ) ", s_name, t_name, c_name);
 
         if (!res) {
-            fprintf(stderr, "s=%s t=%s c=%s\n", s_name.c_str(), t_name.c_str(), c_name.c_str());
-            fprintf(stderr, "%s\n", res.error_message().c_str());
+            LOG_ERROR(app_name, "s=%1 t=%2 c=%3", s_name, t_name, c_name);
+            LOG_ERROR(app_name, "%1", res.error_message());
         }
 
         return res.size() > 0 ? get<string>(res[0], 0) : string{};
@@ -213,7 +210,7 @@ extern int main(int argc, char *argv[]) {
                                         "order by ordinal_position ", s_name, t_name);
 
         if (!res) {
-            fprintf(stderr, "%s\n", res.error_message().c_str());
+            LOG_ERROR(app_name, "%1", res.error_message());
         }
 
         const auto primary_keys = get_primary_keys(t_name);
@@ -248,7 +245,7 @@ extern int main(int argc, char *argv[]) {
                                         "      'information_schema' "
                                         "   )");
         if (!res) {
-            fprintf(stderr, "%s\n", res.error_message().c_str());
+            LOG_ERROR(app_name, "%1", res.error_message());
         }
 
         vector<db::table_t> tables;

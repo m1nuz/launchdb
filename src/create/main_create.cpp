@@ -42,7 +42,7 @@ extern int main(int argc, char *argv[]) {
         if (generators.find(v) == generators.end())
         {
             puts(args.usage(argv[0]).c_str());
-            LOG_ERROR(app_name, "Generator not found %s", gen_name.c_str());
+            LOG_ERROR(app_name, "Generator not found %1", gen_name);
             exit(EXIT_SUCCESS);
         }
         gen_name = v;
@@ -63,7 +63,7 @@ extern int main(int argc, char *argv[]) {
 
     ifstream fs(db_path, ios::in | ios::binary);
     if (!fs.is_open()) {
-        LOG_ERROR(app_name, "Can't open %s", db_path.c_str());
+        LOG_ERROR(app_name, "Can't open %1", db_path);
         return EXIT_FAILURE;
     }
 

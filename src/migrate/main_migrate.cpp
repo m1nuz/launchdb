@@ -24,7 +24,7 @@ std::string read_contents(const std::string &filepath) {
 
     ifstream fs(filepath, ios::in | ios::binary);
     if (!fs.is_open()) {
-        LOG_ERROR("migrate", "Can't open %s", filepath.c_str());
+        LOG_ERROR("migrate", "Can't open %1", filepath);
         return {};
     }
 
@@ -67,7 +67,7 @@ extern int main(int argc, char *argv[]) {
         if (migrators.find(v) == migrators.end())
         {
             puts(args.usage(argv[0]).c_str());
-            LOG_ERROR(app_name, "Migrator not found %s", mig_name.c_str());
+            LOG_ERROR(app_name, "Migrator not found %1", mig_name);
             exit(EXIT_SUCCESS);
         }
         mig_name = v;
@@ -91,7 +91,7 @@ extern int main(int argc, char *argv[]) {
     }
 
     if (from_filename.empty() || to_filename.empty()) {
-        LOG_ERROR(app_name, "%s", "DB_PATH_FROM or DB_PATH_TO is empty");
+        LOG_ERROR(app_name, "%1", "DB_PATH_FROM or DB_PATH_TO is empty");
         return EXIT_FAILURE;
     }
 
@@ -99,12 +99,12 @@ extern int main(int argc, char *argv[]) {
     const auto to_contents = read_contents(to_filename);
 
     if (from_contents.empty()) {
-        LOG_ERROR("migrate", "input %s contents empty!", from_filename.c_str());
+        LOG_ERROR("migrate", "input %1 contents empty!", from_filename);
         return EXIT_FAILURE;
     }
 
     if (to_contents.empty()) {
-        LOG_ERROR("migrate", "input %s contents empty!", from_filename.c_str());
+        LOG_ERROR("migrate", "input %1 contents empty!", from_filename);
         return EXIT_FAILURE;
     }
 
