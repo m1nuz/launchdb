@@ -16,14 +16,21 @@ target_include_directories(${LIB_NAME} PUBLIC
     ${SHARED_INCLUDE_PATH}
 )
 
-target_compile_options(${LIB_NAME} PUBLIC
-    -pthread
-    -pedantic
-    -Wall
-    -Wextra
-    -Wshadow
-    -Wpointer-arith
-    -Wcast-qual
-    -Wunused-result
-    -g
-)
+if (UNIX)
+    target_compile_options(${LIB_NAME} PUBLIC
+        -pthread
+        -pedantic
+        -Wall
+        -Wextra
+        -Wshadow
+        -Wpointer-arith
+        -Wcast-qual
+        -Wunused-result
+        -g
+        )
+elseif (MSVC)
+    target_compile_options(${LIB_NAME} PUBLIC
+        /W3
+        /WX
+        )
+endif()

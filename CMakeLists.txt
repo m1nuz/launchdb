@@ -42,6 +42,7 @@ add_custom_target(generate_version
     VERBATIM)
 
 # System info
+if (UNIX)
 find_program(LSB_RELEASE lsb_release)
 execute_process(COMMAND ${LSB_RELEASE} -is
     OUTPUT_VARIABLE LSB_RELEASE_ID_SHORT
@@ -55,6 +56,7 @@ execute_process(COMMAND ${LSB_RELEASE} -cs
     OUTPUT_VARIABLE LSB_CODENAME_SHORT
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+endif()
 
 # Shared headers
 set(SHARED_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)

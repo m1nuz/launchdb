@@ -14,17 +14,24 @@ set_target_properties(${APP_NAME} PROPERTIES
 target_include_directories(${APP_NAME} PUBLIC
     ${SHARED_INCLUDE_PATH}
 )
-target_compile_options(${APP_NAME} PUBLIC
-    -pthread
-    -pedantic
-    -Wall
-    -Wextra
-    -Wshadow
-    -Wpointer-arith
-    -Wcast-qual
-    -Wunused-result
-    -g
-)
+if (UNIX)
+    target_compile_options(${APP_NAME} PUBLIC
+        -pthread
+        -pedantic
+        -Wall
+        -Wextra
+        -Wshadow
+        -Wpointer-arith
+        -Wcast-qual
+        -Wunused-result
+        -g
+        )
+elseif (MSVC)
+    target_compile_options(${APP_NAME} PUBLIC
+        /W3
+        /WX
+        )
+endif()
 target_link_libraries(${APP_NAME} PUBLIC
     pg_render
     -lpq
