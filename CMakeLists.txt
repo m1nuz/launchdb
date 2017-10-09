@@ -23,13 +23,17 @@ set(VERSION_MINOR 2)
 set(VERSION_PATCH 0)
 set(VERSION_META "-dev")
 
-# Create command to compile the generate command
-add_custom_command(OUTPUT ${GENERATE_OUTPUT}
-    COMMAND gcc -o ${GENERATE_OUTPUT} ${GENERATE_SRCS}
-    DEPENDS ${GENERATE_SRCS})
 
-add_custom_target(generate_version
-    COMMAND ${GENERATE_OUTPUT}
+
+# System info
+if (UNIX)
+    # Create command to compile the generate command
+    add_custom_command(OUTPUT ${GENERATE_OUTPUT}
+        COMMAND gcc -o ${GENERATE_OUTPUT} ${GENERATE_SRCS}
+        DEPENDS ${GENERATE_SRCS})
+
+    add_custom_target(generate_version
+        COMMAND ${GENERATE_OUTPUT}
         -M ${VERSION_MAJOR}
         -m ${VERSION_MINOR}
         -p ${VERSION_PATCH}
@@ -38,24 +42,22 @@ add_custom_target(generate_version
         -F "${PROJECT_BINARY_DIR}/buildnumber"
         -i
         > ${VERSION_OUTPUT}
-    DEPENDS ${GENERATE_OUTPUT}
-    VERBATIM)
+        DEPENDS ${GENERATE_OUTPUT}
+        VERBATIM)
 
-# System info
-if (UNIX)
-find_program(LSB_RELEASE lsb_release)
-execute_process(COMMAND ${LSB_RELEASE} -is
-    OUTPUT_VARIABLE LSB_RELEASE_ID_SHORT
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(COMMAND ${LSB_RELEASE} -rs
-    OUTPUT_VARIABLE LSB_RELEASE_SHORT
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-execute_process(COMMAND ${LSB_RELEASE} -cs
-    OUTPUT_VARIABLE LSB_CODENAME_SHORT
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+    find_program(LSB_RELEASE lsb_release)
+    execute_process(COMMAND ${LSB_RELEASE} -is
+        OUTPUT_VARIABLE LSB_RELEASE_ID_SHORT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    execute_process(COMMAND ${LSB_RELEASE} -rs
+        OUTPUT_VARIABLE LSB_RELEASE_SHORT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    execute_process(COMMAND ${LSB_RELEASE} -cs
+        OUTPUT_VARIABLE LSB_CODENAME_SHORT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
 endif()
 
 # Shared headers

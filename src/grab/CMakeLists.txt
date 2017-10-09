@@ -15,6 +15,7 @@ target_include_directories(${APP_NAME} PUBLIC
     ${SHARED_INCLUDE_PATH}
 )
 if (UNIX)
+    add_dependencies(${APP_NAME} generate_version)
     target_compile_options(${APP_NAME} PUBLIC
         -pthread
         -pedantic

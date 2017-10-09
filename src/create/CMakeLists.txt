@@ -9,7 +9,7 @@ set(SOURCES main_create.cpp
     )
 
 add_executable(${APP_NAME} ${SOURCES} ${HEADERS})
-add_dependencies(${APP_NAME} generate_version)
+
 
 set_target_properties(${APP_NAME} PROPERTIES
     CXX_STANDARD 14
@@ -20,6 +20,7 @@ target_include_directories(${APP_NAME} PUBLIC
     ${SHARED_INCLUDE_PATH}
 )
 if (UNIX)
+    add_dependencies(${APP_NAME} generate_version)
     target_compile_options(${APP_NAME} PUBLIC
         -pthread
         -pedantic
