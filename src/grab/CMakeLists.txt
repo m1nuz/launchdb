@@ -4,7 +4,6 @@ set(APP_NAME grab-db)
 set(SOURCES main_grab.cpp)
 
 add_executable(${APP_NAME} ${SOURCES} ${HEADERS})
-add_dependencies(${APP_NAME} generate_version)
 
 set_target_properties(${APP_NAME} PROPERTIES
     CXX_STANDARD 14

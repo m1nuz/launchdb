@@ -10,7 +10,6 @@ set(SOURCES main_create.cpp
 
 add_executable(${APP_NAME} ${SOURCES} ${HEADERS})
 
-
 set_target_properties(${APP_NAME} PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED YES
