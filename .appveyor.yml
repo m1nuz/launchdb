@@ -4,10 +4,8 @@ branches:
 environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
-      CXXFLAGS: /std:c++14
       CMAKE_GENERATOR: 12
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      CXXFLAGS: /std:c++14
       CMAKE_GENERATOR: 14
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CXXFLAGS: /std:c++14
