@@ -64,13 +64,11 @@ matrix:
 
     - os: linux
       addons:
-         apt:
-         sources:
-            - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-5.0 main'
-         key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
-         packages:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-5.0
+          packages:
             - clang-5.0
-            - llvm-5.0-dev
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
         - EXTRA_FLAGS="-stdlib=libc++"
