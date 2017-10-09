@@ -31,6 +31,6 @@ if (UNIX)
 elseif (MSVC)
     target_compile_options(${LIB_NAME} PUBLIC
         /W3
-        /WX
+#        /WX
         )
 endif()

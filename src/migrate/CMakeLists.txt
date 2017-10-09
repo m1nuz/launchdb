@@ -38,7 +38,7 @@ if (UNIX)
 elseif (MSVC)
     target_compile_options(${APP_NAME} PUBLIC
         /W3
-        /WX
+#        /WX
         )
 endif()
 target_link_libraries(${APP_NAME} PUBLIC
