@@ -1,6 +1,7 @@
 branches:
   only:
     - master
+
 environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
@@ -10,7 +11,15 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       CXXFLAGS: /std:c++14
       CMAKE_GENERATOR: 15
+
 platform: x64
+
+install:
+  - git clone https://github.com/Microsoft/vcpkg c:\projects\vcpkg
+  - c:\projects\vcpkg\bootstrap-vcpkg.bat
+  - set VCPKG_ROOT=c:\projects\vcpkg
+  - %VCPKG_ROOT%\vcpkg.exe install libpq
+
 build_script:
   - cmake -G "Visual Studio %CMAKE_GENERATOR% Win64" -DCMAKE_BUILD_TYPE=Release
   - cmake --build . --config Release
