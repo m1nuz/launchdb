@@ -5,9 +5,9 @@
 namespace postgres {
     std::string to_type(const db::column_value_type &c) {
         using namespace std;
-        string type_name;
+        string type_name = c.type_name;
 
-        switch (strex::hash(c.type_name)) {
+        switch (strex::hash(type_name)) {
         case strex::hash("int"):
             type_name = "INTEGER";
             break;
