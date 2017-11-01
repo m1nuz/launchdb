@@ -52,6 +52,7 @@ extern db::context process_json(const json &j) {
                 for (auto &col : tbl["columns"]) {
                     const auto column_name = col["name"].get<string>();
                     const auto column_type = col["type"].get<string>();
+                    const auto type_size = col.find("size") != col.end() ? col["size"].get<size_t>() : 0;
                     const auto column_not_null = col.find("not_null") != col.end() ? col["not_null"].get<bool>() : false;
                     const auto unique_column = col.find("unique") != col.end() ? col["unique"].get<bool>() : false;
                     const auto column_comment = col.find("comment") != col.end() ? col["comment"].get<string>() : string{};
@@ -61,7 +62,7 @@ extern db::context process_json(const json &j) {
                     if (column_pk)
                         pk.insert(column_name);
 
-                    all_columns.push_back(column_t{column_name, column_comment, {column_type, default_value, column_pk, unique_column, column_not_null}});
+                    all_columns.push_back(column_t{column_name, column_comment, {column_type, type_size, default_value, column_pk, unique_column, column_not_null}});
                 }
 
             if (tbl.find("foreign_keys") != tbl.end())

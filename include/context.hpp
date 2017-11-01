@@ -12,12 +12,14 @@ namespace db {
     typedef struct column_value_type {
         column_value_type() = default;
         column_value_type(const string &_type_name,
+                          const size_t _size,
                           const string &_default_value,
                           const bool _primary_key = false,
                           const bool _unique_key = false,
                           const bool _not_null = false)
             : type_name{_type_name},
               default_value{_default_value},
+              size{_size},
               primary_key{_primary_key},
               unique_key{_unique_key},
               not_null{_not_null} {
@@ -26,7 +28,7 @@ namespace db {
 
         string type_name;
         string default_value;
-        //std::size_t size;
+        size_t size = 0;
         bool primary_key = false;
         bool unique_key = false;
         bool not_null = false;
@@ -34,6 +36,7 @@ namespace db {
 
     inline bool operator==(const column_value_type &lhs, const column_value_type &rhs) noexcept {
         return lhs.type_name == rhs.type_name &&
+                lhs.size == rhs.size &&
                 lhs.default_value == rhs.default_value &&
                 lhs.primary_key == rhs.primary_key &&
                 lhs.unique_key == rhs.unique_key &&

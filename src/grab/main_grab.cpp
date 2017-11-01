@@ -226,7 +226,7 @@ extern int main(int argc, char *argv[]) {
 
             const auto is_primary_key = primary_keys.find(column_name) != primary_keys.cend();
 
-            columns.push_back({column_name, column_comment, from_type(column_type, column_default, is_primary_key, false, !column_nullable)});
+            columns.push_back({column_name, column_comment, from_type(column_type, 0, column_default, is_primary_key, false, !column_nullable)});
         }
 
         return columns;

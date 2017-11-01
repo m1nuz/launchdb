@@ -12,7 +12,7 @@
       "columns": [
         {
           "name": "id",
-          "type": "serial",
+          "type": "int",
           "primary_key": true
         },
         {
@@ -60,7 +60,7 @@
       "columns": [
         {
           "name": "id",
-          "type": "serial",
+          "type": "int",
           "primary_key": true
         },
         {
@@ -102,7 +102,7 @@
       "columns": [
         {
           "name": "id",
-          "type": "serial",
+          "type": "int",
           "primary_key": true
         },
         {
@@ -152,7 +152,7 @@
       "columns": [
         {
           "name": "id",
-          "type": "serial",
+          "type": "int",
           "primary_key": true
         },
         {
@@ -166,7 +166,7 @@
         },
         {
           "name": "picture",
-          "type": "buffer"
+          "type": "bytes"
         },
         {
           "name": "price",
@@ -203,7 +203,7 @@
       "columns": [
         {
           "name": "id",
-          "type": "serial",
+          "type": "int",
           "primary_key": true
         },
         {
