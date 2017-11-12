@@ -4,9 +4,10 @@
 #include <launchdb/types.hpp>
 
 namespace postgres {
+    using namespace std;
     using namespace launchdb;
 
-    std::string to_type(const db::column_value_type &c) {
+    string to_type(const db::column_value_type &c) noexcept {
         using namespace std;
         string type_name = c.type_name;
 
@@ -59,23 +60,25 @@ namespace postgres {
         return type_name;
     }
 
-    db::column_value_type from_type(const std::string &t, const size_t size, const std::string def, const bool _primary_key, const bool _unique_key, const bool _not_null) {
-        const auto def_value = _primary_key ? std::string{} : def;
+    db::column_value_type from_type(const string &t, const size_t size, const string &def, const bool _primary_key, const bool _unique_key, const bool _not_null) noexcept {
+        const auto def_value = _primary_key ? string{} : def;
 
-        if (t == "integer")
-            return db::column_value_type{"int", size, def_value, _primary_key, _unique_key, _not_null};
+        const auto type_hash = strex::hash(strex::tolower(t));
 
-        if (t == "text")
-            return db::column_value_type{"text", size, def_value, _primary_key, _unique_key, _not_null};
+        if (type_hash == strex::hash("integer"))
+            return db::column_value_type{types::int_type, size, def_value, _primary_key, _unique_key, _not_null};
 
-        if (t == "bytea")
-            return db::column_value_type{"buffer", size, def_value, _primary_key, _unique_key, _not_null};
+        if (type_hash == strex::hash("text"))
+            return db::column_value_type{types::text_type, size, def_value, _primary_key, _unique_key, _not_null};
 
-        if (t == "numeric")
-            return db::column_value_type{"decimal", size, def_value, _primary_key, _unique_key, _not_null};
+        if (type_hash == strex::hash("bytea"))
+            return db::column_value_type{types::bytes_type, size, def_value, _primary_key, _unique_key, _not_null};
 
-        if (t == "boolean")
-            return db::column_value_type{"bool", size, def_value, _primary_key, _unique_key, _not_null};
+        if (type_hash == strex::hash("numeric"))
+            return db::column_value_type{types::decimal_type, size, def_value, _primary_key, _unique_key, _not_null};
+
+        if (type_hash == strex::hash("boolean"))
+            return db::column_value_type{types::bool_type, size, def_value, _primary_key, _unique_key, _not_null};
 
         return db::column_value_type{t, size, def_value, _primary_key, _unique_key, _not_null};
     }
