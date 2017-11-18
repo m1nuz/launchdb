@@ -9,7 +9,7 @@
 
 #include <context.hpp>
 #include <journal.hpp>
-#include <version.h>
+#include <launchdb/config.h>
 
 #include <postgres/upgrage.hpp>
 

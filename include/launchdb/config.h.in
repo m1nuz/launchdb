@@ -1,0 +1,5 @@
+// WARNING: Do not change config.h, the file is automatically generated when building
+#pragma once
+
+#define INSTALL_DIR                        "${INSTALL_DIR}"
+#define LAUNCHDB_VERSION                   "${LAUNCHDB_VERSION_MAJOR}.${LAUNCHDB_VERSION_MINOR}.${LAUNCHDB_VERSION_PATCH}-${LAUNCHDB_VERSION_META}"

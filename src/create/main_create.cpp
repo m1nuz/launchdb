@@ -11,7 +11,7 @@
 #include <journal.hpp>
 #include <xargs.hpp>
 
-#include <version.h>
+#include <launchdb/config.h>
 
 #include <postgres/render.hpp>
 

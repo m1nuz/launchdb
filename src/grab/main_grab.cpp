@@ -8,7 +8,7 @@
 #include <postgres/render.hpp>
 #include <postgres/type_conversion.hpp>
 #include <context.hpp>
-#include <version.h>
+#include <launchdb/config.h>
 #include <format.hpp>
 #include <journal.hpp>
 

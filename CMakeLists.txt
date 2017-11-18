@@ -2,49 +2,19 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 project(launchdb)
 
-# Nice names
-set(PROJECT_NAME_UPPER ${PROJECT_NAME})
-string(TOUPPER ${PROJECT_NAME_UPPER} PROJECT_NAME_UPPER)
-
-set(INSTALL_DIR bin)
-
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-include_directories(${PROJECT_BINARY_DIR})
-
-# Set variable for the generate sources
-set(GENERATE_SRCS ${PROJECT_SOURCE_DIR}/src/generate_version.c)
-set(GENERATE_OUTPUT ${PROJECT_BINARY_DIR}/generate_build_version)
-set(VERSION_OUTPUT ${PROJECT_BINARY_DIR}/version.h)
-set(VERSION_MAJOR 0)
-set(VERSION_MINOR 2)
-set(VERSION_PATCH 0)
-set(VERSION_META "-dev")
-
-
+# Set variable for config
+set(INSTALL_DIR /usr/bin)
+set(LAUNCHDB_VERSION_MAJOR 0)
+set(LAUNCHDB_VERSION_MINOR 3)
+set(LAUNCHDB_VERSION_PATCH 0)
+set(LAUNCHDB_VERSION_META "dev")
 
 # System info
 if (UNIX)
-    # Create command to compile the generate command
-    add_custom_command(OUTPUT ${GENERATE_OUTPUT}
-        COMMAND gcc -o ${GENERATE_OUTPUT} ${GENERATE_SRCS}
-        DEPENDS ${GENERATE_SRCS})
-
-    add_custom_target(generate_version
-        COMMAND ${GENERATE_OUTPUT}
-        -M ${VERSION_MAJOR}
-        -m ${VERSION_MINOR}
-        -p ${VERSION_PATCH}
-        -P ${PROJECT_NAME_UPPER}
-        -a "${VERSION_META}"
-        -F "${PROJECT_BINARY_DIR}/buildnumber"
-        -i
-        > ${VERSION_OUTPUT}
-        DEPENDS ${GENERATE_OUTPUT}
-        VERBATIM)
-
     find_program(LSB_RELEASE lsb_release)
     execute_process(COMMAND ${LSB_RELEASE} -is
         OUTPUT_VARIABLE LSB_RELEASE_ID_SHORT
@@ -64,17 +34,20 @@ endif()
 set(SHARED_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
 file(GLOB SHARED_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} include/*.hpp)
 
+configure_file("${SHARED_INCLUDE_PATH}/launchdb/config.h.in" "${SHARED_INCLUDE_PATH}/launchdb/config.h")
+
 add_subdirectory(src/postgres)
 add_subdirectory(src/migrate)
 add_subdirectory(src/create)
 add_subdirectory(src/grab)
 
 # DEB package
+if (UNIX)
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
-set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
+set(CPACK_PACKAGE_VERSION_MAJOR ${LAUNCHDB_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${LAUNCHDB_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${LAUNCHDB_VERSION_PATCH})
 set(CPACK_PACKAGE_CONTACT "Poddubny Mikhail xminuz@gmail.com")
 set(CPACK_PACKAGE_DESCRIPTION "Database creation tool")
 set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
@@ -83,6 +56,8 @@ set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION})
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}-dbg")
+endif()
+
 endif()
 
 include(CPack)
