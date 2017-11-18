@@ -38,44 +38,4 @@ cd build
 cmake ..
 cmake --build .
 ```
-### Making deb package:
-```sh
-cpack .
-```
 
-## Install
-### From sources
-```sh
-sudo make install
-```
-
-### deb
-```sh
-sudo dpkg -i launchdb-0.1.0.deb
-```
-
-## Uninstall
-### From sources
-```sh
-sudo make uninstall
-```
-### deb
-```sh
-sudo dpkg -r launchdb
-```
-
-## Usage
-> create-db [options] DB_PATH
-
-DB_PATH Path to database
-
-Options:
-- -g Generator postgres, mysql, maria. Default: postgres
-- -v Version
-- -h Display help
-
-### Example usage for Postgres
-```sh
-createdb estoredb
-create-db examples/estore.json | psql -d estoredb
-```
