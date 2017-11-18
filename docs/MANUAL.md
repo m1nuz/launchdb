@@ -4,6 +4,11 @@ cd build
 cmake ..
 cmake --build .
 ```
+### Dependencies
+```sh
+sudo apt-get install postgresql libsqlite3-dev -y
+```
+
 ### Making deb package:
 ```sh
 cpack .
