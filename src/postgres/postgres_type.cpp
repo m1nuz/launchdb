@@ -31,7 +31,7 @@ namespace postgres {
             }
             break;
         case strex::hash(types::str_type):
-            type_name = "TEXT";
+            type_name = c.size == 0 ? "TEXT" : "VARCHAR(" + to_string(c.size) + ")";
             break;
         case strex::hash(types::text_type):
             type_name = "TEXT";
@@ -46,7 +46,11 @@ namespace postgres {
             type_name = "timestamp";
             break;
         case strex::hash(types::decimal_type):
-            type_name = "DECIMAL(12, 2)";
+            type_name = "DECIMAL("
+                    + (c.precision == 0 ? "12" : to_string(c.precision))
+                    + ","
+                    + (c.scale == 0 ? "2" : to_string(c.scale))
+                    + ")";
             break;
         }
 

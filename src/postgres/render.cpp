@@ -20,7 +20,7 @@ namespace postgres {
 
         auto col_idx = 0ul;
         for (const auto &c : t.columns) {
-            cout << indent << c.name << " " << postgres::to_type(c);
+            cout << indent << c.column_name << " " << postgres::to_type(c);
             if ((t.columns.size() > 1 && col_idx != t.columns.size() - 1) || !t.primary_key.empty())
                 cout << ',';
             cout << '\n';
@@ -79,7 +79,7 @@ namespace postgres {
         cout << '\n';
         for (const auto &c : t.columns)
             if (!c.comment.empty())
-                cout << "COMMENT ON COLUMN " << full_table_name << "." << c.name << " IS \'" << c.comment << "\';\n";
+                cout << "COMMENT ON COLUMN " << full_table_name << "." << c.column_name << " IS \'" << c.comment << "\';\n";
 
         if (!owner.empty())
             cout << '\n' << "ALTER TABLE " << full_table_name << " OWNER TO " << owner << ";\n";

@@ -58,11 +58,12 @@ extern db::context process_json(const json &j) {
                     const auto column_comment = col.find("comment") != col.end() ? col["comment"].get<string>() : string{};
                     const auto default_value = col.find("default") != col.end() ? col["default"].get<string>() : string{};
                     const auto column_pk = col.find("primary_key") != col.end() ? col["primary_key"].get<bool>() : false;
+                    const auto column_renamed = col.find("renamed") != col.end() ? col["renamed"].get<string>() : string{};
 
                     if (column_pk)
                         pk.insert(column_name);
 
-                    all_columns.push_back(column_t{column_name, column_comment, {column_type, type_size, default_value, column_pk, unique_column, column_not_null}});
+                    all_columns.push_back(column_t{column_name, column_renamed, column_comment, {column_type, type_size, default_value, column_pk, unique_column, column_not_null}});
                 }
 
             if (tbl.find("foreign_keys") != tbl.end())
