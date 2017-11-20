@@ -1,4 +1,7 @@
 
+set(PostgreSQL_ADDITIONAL_VERSIONS "9.5")
+find_package(PostgreSQL REQUIRED)
+
 set(APP_NAME grab-db)
 
 set(SOURCES main_grab.cpp)
@@ -14,9 +17,6 @@ target_include_directories(${APP_NAME} PUBLIC
     ${SHARED_INCLUDE_PATH}
     ${PostgreSQL_INCLUDE_DIR}
 )
-
-set(PostgreSQL_ADDITIONAL_VERSIONS "9.5")
-find_package(PostgreSQL REQUIRED)
 
 if (UNIX)
     target_compile_options(${APP_NAME} PUBLIC
