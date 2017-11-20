@@ -1,5 +1,4 @@
 
-set(PostgreSQL_ADDITIONAL_VERSIONS "9.5")
 find_package(PostgreSQL REQUIRED)
 
 set(APP_NAME grab-db)
