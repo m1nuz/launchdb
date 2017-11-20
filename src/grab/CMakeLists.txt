@@ -14,7 +14,7 @@ set_target_properties(${APP_NAME} PROPERTIES
 )
 target_include_directories(${APP_NAME} PUBLIC
     ${SHARED_INCLUDE_PATH}
-    ${PostgreSQL_INCLUDE_DIR}
+    ${PostgreSQL_INCLUDE_DIRS}
 )
 
 if (UNIX)
@@ -37,7 +37,7 @@ elseif (MSVC)
 endif()
 target_link_libraries(${APP_NAME} PUBLIC
     pg_render
-    -lpq
+    ${PostgreSQL_LIBRARIES}
 )
 
 # Install

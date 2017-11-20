@@ -16,8 +16,6 @@
 using json = nlohmann::json;
 
 namespace db {
-    using json = nlohmann::json;
-
     void to_json(json& j, const column_t &c) {
         j["name"] = c.column_name;
         j["type"] = c.type_name;

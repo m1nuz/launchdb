@@ -82,6 +82,17 @@ install:
   - sudo apt-get install -qq libc++-dev
   - sudo apt-get install -qq libc++abi-dev
   - sudo apt-get install -qq libpq-dev postgresql-server-dev-all
+# install cmake
+  - CMAKE_VERSION="3.5.2"
+  - CMAKE_INSTALL_DIR=${HOME}/cmake-${CMAKE_VERSION}
+  - mkdir ${CMAKE_INSTALL_DIR}/
+  - wget --no-check-certificate "http://cmake.org/files/v3.5/cmake-${CMAKE_VERSION}-Linux-x86_64.sh"
+  - chmod +x cmake-${CMAKE_VERSION}-Linux-x86_64.sh
+  - ./cmake-${CMAKE_VERSION}-Linux-x86_64.sh --prefix=${CMAKE_INSTALL_DIR} --skip-license
+  - export PATH=${CMAKE_INSTALL_DIR}/bin:$PATH
+# verify installed versions
+  - which cmake
+  - cmake --version
   
 # Only watch the master branch
 branches:
