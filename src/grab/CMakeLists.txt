@@ -12,7 +12,12 @@ set_target_properties(${APP_NAME} PROPERTIES
 )
 target_include_directories(${APP_NAME} PUBLIC
     ${SHARED_INCLUDE_PATH}
+    ${PostgreSQL_INCLUDE_DIR}
 )
+
+set(PostgreSQL_ADDITIONAL_VERSIONS "9.5")
+find_package(PostgreSQL REQUIRED)
+
 if (UNIX)
     target_compile_options(${APP_NAME} PUBLIC
         -pthread

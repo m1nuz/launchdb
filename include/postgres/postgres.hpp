@@ -5,7 +5,7 @@
 
 #include <format.hpp>
 
-#include <postgresql/libpq-fe.h>
+#include <libpq-fe.h>
 
 namespace postgres {
     using std::shared_ptr;

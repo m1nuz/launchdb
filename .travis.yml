@@ -91,5 +91,6 @@ branches:
 script:
   - uname -a
   - $CXX --version
+  - mkdir build
   - cd build
   - cmake -DCMAKE_CXX_FLAGS="${EXTRA_FLAGS}" .. && cmake --build .
