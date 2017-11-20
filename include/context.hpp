@@ -216,7 +216,7 @@ namespace db {
         template <typename T, typename V, typename C = empty_t>
         struct modification_t {
             modification_t() = default;
-            modification_t(const T &t, const V &v) : modification_t(t, v, {}) {
+            modification_t(const T &t, const V &v) : modification_t(t, v, C{}) {
 
             }
 
