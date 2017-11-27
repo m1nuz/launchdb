@@ -14,6 +14,7 @@
 #include <launchdb/config.h>
 
 #include <postgres/render.hpp>
+#include <sqlite/render.h>
 
 using json = nlohmann::json;
 
@@ -32,13 +33,14 @@ extern int main(int argc, char *argv[]) {
     string gen_name = "postgres";
 
     unordered_map<string, generator_t> generators {
-        {"postgres", postgres::render}
+        {"postgres", postgres::render},
+        {"sqlite", sqlite::render}
     };
 
     xargs::args args;
     args.add_arg("DB_PATH", "Path to database", [&] (const auto &v) {
         db_path = v;
-    }).add_option("-g", "Generator postgres, mysql, maria. Default: " + gen_name, [&] (const auto &v) {
+    }).add_option("-g", "Generator postgres, mysql, maria, sqlite. Default: " + gen_name, [&] (const auto &v) {
         if (generators.find(v) == generators.end())
         {
             puts(args.usage(argv[0]).c_str());

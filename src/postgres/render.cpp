@@ -1,15 +1,15 @@
 #include <json.hpp>
+#include <strex.hpp>
+
+#include <postgres/type_conversion.hpp>
 
 #include "context.hpp"
-#include "strex.hpp"
 
 using json = nlohmann::json;
 using std::string;
 
 namespace postgres {
     const auto indent = string{"   "};
-
-    std::string to_type(const db::column_value_type &c);
 
     int render(const db::table_t &t, string owner) {
         using namespace std;

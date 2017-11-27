@@ -1,5 +1,6 @@
 
 find_package(PostgreSQL REQUIRED)
+find_package(SQLite3 REQUIRED)
 
 set(APP_NAME grab-db)
 
@@ -15,6 +16,7 @@ set_target_properties(${APP_NAME} PROPERTIES
 target_include_directories(${APP_NAME} PUBLIC
     ${SHARED_INCLUDE_PATH}
     ${PostgreSQL_INCLUDE_DIRS}
+    ${SQLITE3_INCLUDE_DIR}
 )
 
 if (UNIX)
@@ -38,6 +40,7 @@ endif()
 target_link_libraries(${APP_NAME} PUBLIC
     pg_render
     ${PostgreSQL_LIBRARIES}
+    ${SQLITE3_LIBRARIES}
 )
 
 # Install

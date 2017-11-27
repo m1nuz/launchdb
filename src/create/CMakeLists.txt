@@ -38,6 +38,7 @@ elseif (MSVC)
 endif()
 target_link_libraries(${APP_NAME} PUBLIC
     pg_render
+    sqlite_render
 )
 
 install(TARGETS ${APP_NAME} RUNTIME DESTINATION ${INSTALL_DIR})

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
 project(launchdb)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -36,6 +38,7 @@ file(GLOB SHARED_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} include/*.hpp)
 
 configure_file("${SHARED_INCLUDE_PATH}/launchdb/config.h.in" "${SHARED_INCLUDE_PATH}/launchdb/config.h")
 
+add_subdirectory(src/sqlite)
 add_subdirectory(src/postgres)
 add_subdirectory(src/migrate)
 add_subdirectory(src/create)

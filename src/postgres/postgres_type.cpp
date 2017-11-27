@@ -3,12 +3,13 @@
 #include "context.hpp"
 #include <launchdb/types.hpp>
 
+using std::string;
+
 namespace postgres {
-    using namespace std;
-    using namespace launchdb;
 
     string to_type(const db::column_value_type &c) noexcept {
         using namespace std;
+        using namespace launchdb;
         string type_name = c.type_name;
 
         switch (strex::hash(type_name)) {
@@ -65,6 +66,9 @@ namespace postgres {
     }
 
     db::column_value_type from_type(const string &t, const size_t size, const string &def, const bool _primary_key, const bool _unique_key, const bool _not_null) noexcept {
+        using namespace std;
+        using namespace launchdb;
+
         const auto def_value = _primary_key ? string{} : def;
 
         const auto type_hash = strex::hash(strex::tolower(t));
