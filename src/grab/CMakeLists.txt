@@ -16,7 +16,7 @@ set_target_properties(${APP_NAME} PROPERTIES
 target_include_directories(${APP_NAME} PUBLIC
     ${SHARED_INCLUDE_PATH}
     ${PostgreSQL_INCLUDE_DIRS}
-    ${SQLITE3_INCLUDE_DIR}
+    ${SQLITE3_INCLUDE_DIRS}
 )
 
 if (UNIX)
