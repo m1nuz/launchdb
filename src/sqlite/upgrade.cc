@@ -18,9 +18,9 @@ namespace sqlite {
     int upgrade(const db::context_diff &ctx) {
         using namespace std;
 
-        auto get_full_table_name = [] (const auto &schema_name, const auto &table_name) {
+        /*auto get_full_table_name = [] (const auto &schema_name, const auto &table_name) {
             return schema_name.empty() ? table_name : "[" + schema_name + "." + table_name + "]";
-        };
+        };*/
 
         auto get_simple_table_name = [] (const auto &schema_name, const auto &table_name) {
             return schema_name.empty() ? table_name : schema_name + "." + table_name;
@@ -43,8 +43,6 @@ namespace sqlite {
             const auto value = get<1>(c);
             //const auto changes = get<2>(c);
 
-            //const auto [status, value, changes] = c;
-
             const auto simple_table_name = get_simple_table_name(value.schema_name, value.table_name);
 
             if (table_columns.find(simple_table_name) != table_columns.end()) {
@@ -65,21 +63,21 @@ namespace sqlite {
         };
 
         auto get_column_list = [=] (const auto &columns, const auto check_status) {
-            string column_list;
+            string col_list;
 
             for (const auto &c : columns) {
                 const auto status = get<0>(c);
                 const auto value = get<1>(c);
 
                 if (check_status(status)) {
-                    if (column_list.empty())
-                        column_list += value.column_name;
+                    if (col_list.empty())
+                        col_list += value.column_name;
                     else
-                        column_list += ", " + value.column_name;
+                        col_list += ", " + value.column_name;
                 }
             }
 
-            return column_list;
+            return col_list;
         };
 
         for (const auto &tc : table_columns) {

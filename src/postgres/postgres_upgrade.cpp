@@ -18,7 +18,9 @@ namespace postgres {
         cout << "BEGIN;\n\n";
 
         for (const auto &c : ctx.columns) {
-            const auto [status, value, changes] = c;
+            const auto status = get<0>(c);
+            const auto value = get<1>(c);
+            const auto changes = get<2>(c);
 
             const auto full_table_name = (value.schema_name.empty() ? value.table_name : value.schema_name + "." + value.table_name);
 
