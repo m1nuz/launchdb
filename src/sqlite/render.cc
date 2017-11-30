@@ -40,20 +40,22 @@ namespace sqlite {
             break;
         }
 
-        if (c.unique_key)
-            type_name += " UNIQUE";
-        if (c.not_null)
-            type_name += " NOT NULL";
         if (!c.default_value.empty())
             type_name += " DEFAULT " + c.default_value;
+        if (c.not_null)
+            type_name += " NOT NULL";
+        if (c.unique_key)
+            type_name += " UNIQUE";
 
+
+        // TODO: AUTOINCREMENT
         /*if (type_name == "INTEGER" && c.primary_key)
             type_name += " AUTOINCREMENT";*/
 
         return type_name;
     }
 
-    static int render(const std::vector<db::index_t> &indices) {
+    int render(const std::vector<db::index_t> &indices) {
         using namespace std;
 
         auto get_full_table_name = [] (const auto &schema_name, const auto &table_name) {
@@ -69,7 +71,7 @@ namespace sqlite {
         return 0;
     }
 
-    static void render(const db::table_t &tbl) {
+    void render(const db::table_t &tbl, const bool exists_only) {
         using namespace std;
 
         auto get_full_table_name = [] (const auto &schema_name, const auto &table_name) {
@@ -78,11 +80,11 @@ namespace sqlite {
 
         const auto full_table_name = get_full_table_name(tbl.schema_name, tbl.table_name);
 
-        cout << "CREATE TABLE " << full_table_name << " (\n";
+        cout << "CREATE TABLE " << (exists_only ? string{} : "IF NOT EXISTS ") << full_table_name << " (\n";
 
         auto col_idx = 0ul;
         for (const auto &c : tbl.columns) {
-            cout << indent << c.column_name << " " << sqlite::to_type(c);
+            cout << indent << c.column_name << " " << to_type(c);
             if ((tbl.columns.size() > 1 && col_idx != tbl.columns.size() - 1) || !tbl.primary_key.empty())
                 cout << ',';
             cout << '\n';
@@ -145,7 +147,7 @@ namespace sqlite {
             cout << "BEGIN;\n\n";
 
         for (const auto &t : ctx.tables) {
-            render(t);
+            render(t, true);
             cout << '\n';
         }
 

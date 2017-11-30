@@ -56,13 +56,15 @@ db::context_diff get_diff(const db::context &old_ctx, const db::context &new_ctx
             if (same_table(nt, ot)) {
                 for (const auto &c : nt.columns) {
                     if (!contains_column(ot.columns, c)) {
-                        ctx_diff.columns.emplace_back(db::context_diff::status_added, db::context_diff::column_t{nt.schema_name, nt.table_name, c.column_name, c.column_renamed, c});
+                        const set<db::column_fields> no_changes;
+                        ctx_diff.columns.emplace_back(db::context_diff::status_added, db::context_diff::column_t{nt.schema_name, nt.table_name, c.column_name, c.column_renamed, c}, no_changes);
                     }
                 }
 
                 for (const auto &c : ot.columns) {
                     if (!contains_column(nt.columns, c)) {
-                        ctx_diff.columns.emplace_back(db::context_diff::status_removed, db::context_diff::column_t{ot.schema_name, nt.table_name, c.column_name, c.column_renamed, c});
+                        const set<db::column_fields> no_changes;
+                        ctx_diff.columns.emplace_back(db::context_diff::status_removed, db::context_diff::column_t{ot.schema_name, nt.table_name, c.column_name, c.column_renamed, c}, no_changes);
                     }
                 }
 
@@ -70,8 +72,13 @@ db::context_diff get_diff(const db::context &old_ctx, const db::context &new_ctx
                     for (const auto &oc : ot.columns)
                         if ((nc.column_name == oc.column_name) || (nc.column_renamed == oc.column_name)) {
                             auto col_diff = get_diff(nc, oc);
-                            if (!col_diff.empty())
+                            if (!col_diff.empty()) {
                                 ctx_diff.columns.emplace_back(db::context_diff::status_changed, db::context_diff::column_t{nt.schema_name, nt.table_name, nc.column_name, nc.column_renamed, nc}, col_diff);
+                            } else {
+                                const set<db::column_fields> no_changes;
+                                ctx_diff.columns.emplace_back(db::context_diff::status_unchanged, db::context_diff::column_t{nt.schema_name, nt.table_name, nc.column_name, nc.column_renamed, nc}, no_changes);
+                            }
+
                         }
             }
         }

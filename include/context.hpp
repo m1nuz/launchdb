@@ -3,11 +3,13 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <tuple>
 
 namespace db {
     using std::string;
     using std::vector;
     using std::set;
+    using std::tuple;
 
     enum class column_fields {
         type,
@@ -207,30 +209,12 @@ namespace db {
         enum status_type {
             status_added,
             status_removed,
-            status_changed
+            status_changed,
+            status_unchanged,
         };
 
-        struct empty_t {
-        };
-
-        template <typename T, typename V, typename C = empty_t>
-        struct modification_t {
-            modification_t() = default;
-            modification_t(const T &t, const V &v) : modification_t(t, v, C{}) {
-
-            }
-
-            modification_t(const T &t, const V &v, const C &c) : status{t}, value{v}, changes{c} {
-
-            }
-
-            T status;
-            V value;
-            C changes;
-        };
-
-        vector<modification_t<status_type, table_t>> tables;
-        vector<modification_t<status_type, column_t, set<column_fields>>> columns;
-        vector<modification_t<status_type, index_t>> indices;
+        vector<tuple<status_type, table_t>> tables;
+        vector<tuple<status_type, column_t, set<column_fields>>> columns;
+        vector<tuple<status_type, index_t>> indices;
     };
 }

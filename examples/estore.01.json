@@ -181,7 +181,8 @@
         {
           "name": "supplier",
           "type": "int",
-          "not_null": true
+          "not_null": true,
+          "default": "0"
         }
       ],
       "foreign_keys": [

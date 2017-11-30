@@ -18,52 +18,54 @@ namespace postgres {
         cout << "BEGIN;\n\n";
 
         for (const auto &c : ctx.columns) {
-            const auto full_table_name = (c.value.schema_name.empty() ? c.value.table_name : c.value.schema_name + "." + c.value.table_name);
+            const auto [status, value, changes] = c;
 
-            if (c.status == db::context_diff::status_added) {
-                cout << "ALTER TABLE " << full_table_name << " ADD COLUMN " << c.value.column_name << " " << to_type(c.value) << ";\n";
+            const auto full_table_name = (value.schema_name.empty() ? value.table_name : value.schema_name + "." + value.table_name);
+
+            if (status == db::context_diff::status_added) {
+                cout << "ALTER TABLE " << full_table_name << " ADD COLUMN " << value.column_name << " " << to_type(value) << ";\n";
                 continue;
             }
 
-            if (c.status == db::context_diff::status_removed) {
-                cout << "ALTER TABLE " << full_table_name << " DROP COLUMN " << c.value.column_name << ";\n";
+            if (status == db::context_diff::status_removed) {
+                cout << "ALTER TABLE " << full_table_name << " DROP COLUMN " << value.column_name << ";\n";
                 continue;
             }
 
-            if (c.status == db::context_diff::status_changed) {
-                if (c.changes.find(db::column_fields::type) != c.changes.end() ||
-                    c.changes.find(db::column_fields::size) != c.changes.end() ||
-                    c.changes.find(db::column_fields::precision) != c.changes.end() ||
-                    c.changes.find(db::column_fields::scale) != c.changes.end()) {
+            if (status == db::context_diff::status_changed) {
+                if (changes.find(db::column_fields::type) != changes.end() ||
+                    changes.find(db::column_fields::size) != changes.end() ||
+                    changes.find(db::column_fields::precision) != changes.end() ||
+                    changes.find(db::column_fields::scale) != changes.end()) {
 
                     // TODO: change type
                 }
 
                 // TODO: primary_key
 
-                if (c.changes.find(db::column_fields::default_value) != c.changes.end()) {
-                    if (!c.value.default_value.empty())
-                        cout << "ALTER TABLE " << full_table_name << " ALTER COLUMN " << c.value.column_name << " SET DEFAULT " << c.value.default_value <<";\n";
+                if (changes.find(db::column_fields::default_value) != changes.end()) {
+                    if (!value.default_value.empty())
+                        cout << "ALTER TABLE " << full_table_name << " ALTER COLUMN " << value.column_name << " SET DEFAULT " << value.default_value <<";\n";
                     else
-                        cout << "ALTER TABLE " << full_table_name << " ALTER COLUMN " << c.value.column_name << " DROP DEFAULT" << ";\n";
+                        cout << "ALTER TABLE " << full_table_name << " ALTER COLUMN " << value.column_name << " DROP DEFAULT" << ";\n";
                 }
 
-                if (c.changes.find(db::column_fields::not_null) != c.changes.end()) {
-                    if (c.value.not_null)
-                        cout << "ALTER TABLE " << full_table_name << " ALTER COLUMN " << c.value.column_name << " SET NOT NULL" << ";\n";
+                if (changes.find(db::column_fields::not_null) != changes.end()) {
+                    if (value.not_null)
+                        cout << "ALTER TABLE " << full_table_name << " ALTER COLUMN " << value.column_name << " SET NOT NULL" << ";\n";
                     else
-                        cout << "ALTER TABLE " << full_table_name << " ALTER COLUMN " << c.value.column_name << " DROP NOT NULL" << ";\n";
+                        cout << "ALTER TABLE " << full_table_name << " ALTER COLUMN " << value.column_name << " DROP NOT NULL" << ";\n";
                 }
 
-                if (c.changes.find(db::column_fields::unique_key) != c.changes.end()) {
-                    if (c.value.unique_key)
-                        cout << "ALTER TABLE " << full_table_name << " ADD CONSTRAINT " << "UNIQUE (" << c.value.column_name << ")" << ";\n";
+                if (changes.find(db::column_fields::unique_key) != changes.end()) {
+                    if (value.unique_key)
+                        cout << "ALTER TABLE " << full_table_name << " ADD CONSTRAINT " << "UNIQUE (" << value.column_name << ")" << ";\n";
                     else
-                        cout << "ALTER TABLE " << full_table_name << " DROP UNIQUE " << "UNIQUE (" << c.value.column_name << ")" << ";\n";
+                        cout << "ALTER TABLE " << full_table_name << " DROP UNIQUE " << "UNIQUE (" << value.column_name << ")" << ";\n";
                 }
 
-                if (c.changes.find(db::column_fields::rename) != c.changes.end()) {
-                    cout << "ALTER TABLE " << full_table_name << " RENAME COLUMN " << c.value.column_renamed << " TO " << c.value.column_name << ";\n";
+                if (changes.find(db::column_fields::rename) != changes.end()) {
+                    cout << "ALTER TABLE " << full_table_name << " RENAME COLUMN " << value.column_renamed << " TO " << value.column_name << ";\n";
                 }
             }
         }
@@ -71,14 +73,14 @@ namespace postgres {
         cout << '\n';
 
         for (const auto &t : ctx.tables) {
-            if (t.status == db::context_diff::status_added) {
-                render(t.value, {});
+            if (get<0>(t) == db::context_diff::status_added) {
+                render(get<1>(t) , {});
             }
         }
 
         for (const auto ix : ctx.indices) {
-            if (ix.status == db::context_diff::status_added) {
-                render({ix.value});
+            if (get<0>(ix)  == db::context_diff::status_added) {
+                render({get<1>(ix) });
             }
         }
 

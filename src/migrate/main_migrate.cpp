@@ -12,14 +12,13 @@
 #include <launchdb/config.h>
 
 #include <postgres/upgrage.hpp>
+#include <sqlite/render.h>
 
 using json = nlohmann::json;
 
 volatile int log_level = DEFAULT_LOG_LEVEL;
 
-typedef struct migrator_type {
-
-} migrator_t;
+typedef std::function<int (const db::context_diff &)> migrator_t;
 
 std::string read_contents(const std::string &filepath) {
     using namespace std;
@@ -53,7 +52,8 @@ extern int main(int argc, char *argv[]) {
     string mig_name = "postgres";
 
     unordered_map<string, migrator_t> migrators {
-        {"postgres", {}}
+        {"postgres", {postgres::upgrade}},
+        {"sqlite", {sqlite::upgrade}}
     };
 
     xargs::args args;
@@ -61,7 +61,7 @@ extern int main(int argc, char *argv[]) {
         from_filename = v;
     }).add_arg("DB_PATH_TO", "Path to database", [&] (const auto &v) {
         to_filename = v;
-    }).add_option("-m", "Migrator postgres, mysql, maria. Default: " + mig_name, [&] (const auto &v) {
+    }).add_option("-m", "Migrator postgres, mysql, maria, sqlite. Default: " + mig_name, [&] (const auto &v) {
         if (migrators.find(v) == migrators.end())
         {
             puts(args.usage(argv[0]).c_str());
@@ -111,7 +111,7 @@ extern int main(int argc, char *argv[]) {
 
     auto diff_db = get_diff(old_db, new_db);
 
-    postgres::upgrade(diff_db);
+    migrators[mig_name](diff_db);
 
     return EXIT_SUCCESS;
 }
