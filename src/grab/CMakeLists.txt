@@ -39,6 +39,7 @@ elseif (MSVC)
 endif()
 target_link_libraries(${APP_NAME} PUBLIC
     pg_render
+    sqlite_render
     ${PostgreSQL_LIBRARIES}
     ${SQLITE3_LIBRARIES}
 )

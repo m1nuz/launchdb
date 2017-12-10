@@ -3,16 +3,19 @@
 #include <set>
 
 #include <xargs.hpp>
+#include <format.hpp>
+#include <journal.hpp>
+#include <json.hpp>
+#include <strex.hpp>
 
+#include <launchdb/config.h>
+#include <context.hpp>
 #include <postgres/postgres.hpp>
 #include <postgres/render.hpp>
 #include <postgres/type_conversion.hpp>
-#include <context.hpp>
-#include <launchdb/config.h>
-#include <format.hpp>
-#include <journal.hpp>
+#include <sqlite/sqlite.h>
+#include <sqlite/render.h>
 
-#include <json.hpp>
 using json = nlohmann::json;
 
 namespace db {
@@ -70,54 +73,99 @@ extern json make_json(const db::context &ctx) {
     return j;
 }
 
-volatile int log_level = DEFAULT_LOG_LEVEL;
 
-extern int main(int argc, char *argv[]) {
+db::context grap_sqlite(const std::string &app, const std::string &db_name) {
     using namespace std;
+    using namespace sqlite;
 
-    const auto app_name = strrchr(argv[0], '/') ? strrchr(argv[0], '/') + 1 : nullptr;
+    const auto *app_name = app.c_str();
 
-    string db_name;
-    string db_type = "postgres";
-    string host = "localhost";
-    string user = "james";
-    string pass;
-
-    xargs::args args;
-    args.add_arg("DB_NAME", "Database name", [&] (const auto &v) {
-        db_name = v;
-    }).add_option("-d", "Grap from postgres, mysql, maria. Default: " + db_name, [&] (const auto &v) {
-        db_type = v;
-    }).add_option("-h", "Display help", [&] () {
-        puts(args.usage(argv[0]).c_str());
-        exit(EXIT_SUCCESS);
-    }).add_option("-u", "User name for connection", [&] (const auto &v) {
-        user = v;
-    }).add_option("-p", "Password of user for connection", [&] (const auto &v) {
-        pass = v;
-    }).add_option("-v", "Version", [&] () {
-        fprintf(stdout, "%s %s\n", app_name, LAUNCHDB_VERSION);
-        exit(EXIT_SUCCESS);
-    });
-
-    args.dispath(argc, argv);
-
-    if (static_cast<size_t>(argc) < args.count()) {
-        puts(args.usage(argv[0]).c_str());
-        return EXIT_SUCCESS;
-    }
-
-    const string conn_info = "dbname=" + db_name
-            + " host=" + host
-            + " user=" + user
-            + (!pass.empty() ? " password=" + pass : string{});
-
-    using namespace postgres;
-    connection conn = connection::create(conn_info);
+    auto conn = connection::create(db_name);
 
     if (!conn) {
         LOG_ERROR(app_name, "%1", conn.error_message());
-        return 1;
+        exit(EXIT_FAILURE);
+    }
+
+    auto get_full_table_name = [] (const auto &schema_name, const auto &table_name) {
+        return schema_name.empty() ? table_name : "[" + schema_name + "." + table_name + "]";
+    };
+
+    auto get_columns = [&](const auto &s_name, const auto &t_name) {
+        const auto tbl_name = get_full_table_name(s_name, t_name);
+        auto res = query::execute(conn, "PRAGMA table_info(%1);", tbl_name);
+
+        if (!res) {
+            LOG_ERROR(app_name, "%1 %2", res.error_message(), tbl_name);
+            return vector<db::column_t>{};
+        }
+
+        vector<db::column_t> columns;
+
+        for (const auto &r : res) {
+            //const auto column_num = get<int64_t>(r, 0);
+            const auto column_name = get<string>(r, 1);
+            const auto column_type = get<string>(r, 2);
+            const auto column_nullable = get<int64_t>(r, 3);
+            auto def_val = get_if<string>(r, 4);
+            const auto column_default = def_val == nullptr ? string{} : *def_val;
+            const auto is_primary_key = get<int64_t>(r, 5);
+
+            columns.push_back({column_name, string{}, string{}, from_type(column_type, 0, column_default, is_primary_key, false, column_nullable)});
+        }
+
+        return columns;
+    };
+
+    auto get_tables = [&] () {
+        auto res = query::execute(conn, "select "
+                                        "   name "
+                                        "from "
+                                        "   sqlite_master "
+                                        "where "
+                                        "   type = 'table';");
+        if (!res) {
+            LOG_ERROR(app_name, "%1", res.error_message());
+        }
+
+        vector<db::table_t> tables;
+        tables.reserve(res.size());
+
+        for (const auto &r : res) {
+            const auto full_table_name = get<string>(r, 0);
+            const auto names = strex::split(full_table_name, ".");
+            const auto table_name = names.size() == 1 ? names[0] : names[1];
+            const auto schema_name = names.size() == 1 ? string{} : names[0];
+
+            auto columns = get_columns(schema_name, table_name);
+            tables.push_back(db::table_t{schema_name, table_name, {}, columns, db::primary_key_t{}, {}});
+        }
+
+        return tables;
+    };
+
+    db::context ctx;
+    ctx.tables = get_tables();
+
+    return ctx;
+}
+
+db::context grap_postgres(const std::string &app, const std::string &db_name, const std::string &db_host, const std::string &db_user, const std::string &pass) {
+    using namespace std;
+
+    const auto *app_name = app.c_str();
+
+    const string conn_info = "dbname=" + db_name
+            + " host=" + db_host
+            + " user=" + db_user
+            + (!pass.empty() ? " password=" + pass : string{});
+
+    using namespace postgres;
+    auto conn = connection::create(conn_info);
+
+    if (!conn) {
+        LOG_ERROR(app_name, "%1", conn.error_message());
+        exit(EXIT_FAILURE);
     }
 
     auto get_primary_keys = [&] (const auto & t_name) {
@@ -263,7 +311,57 @@ extern int main(int argc, char *argv[]) {
     db::context ctx;
     ctx.tables = get_tables();
 
-    const auto j = make_json(ctx);
+    return ctx;
+}
+
+volatile int log_level = DEFAULT_LOG_LEVEL;
+
+extern int main(int argc, char *argv[]) {
+    using namespace std;
+
+    const auto app_name = strrchr(argv[0], '/') ? strrchr(argv[0], '/') + 1 : nullptr;
+
+    string db_name;
+    string db_type = "postgres";
+    string host = "localhost";
+    string user = "james";
+    string pass;
+
+    xargs::args args;
+    args.add_arg("DB_NAME", "Database name", [&] (const auto &v) {
+        db_name = v;
+    }).add_option("-g", "Grap from postgres, mysql, maria, sqlite. Default: " + db_name, [&] (const auto &v) {
+        db_type = v;
+    }).add_option("-h", "Display help", [&] () {
+        puts(args.usage(argv[0]).c_str());
+        exit(EXIT_SUCCESS);
+    }).add_option("-u", "User name for connection", [&] (const auto &v) {
+        user = v;
+    }).add_option("-p", "Password of user for connection", [&] (const auto &v) {
+        pass = v;
+    }).add_option("-v", "Version", [&] () {
+        fprintf(stdout, "%s %s\n", app_name, LAUNCHDB_VERSION);
+        exit(EXIT_SUCCESS);
+    });
+
+    args.dispath(argc, argv);
+
+    if (static_cast<size_t>(argc) < args.count()) {
+        puts(args.usage(argv[0]).c_str());
+        return EXIT_SUCCESS;
+    }
+
+    const auto get_ctx = [&] () {
+        if (db_type == "postgres")
+            return grap_postgres(app_name, db_name, host, user, pass);
+
+        if (db_type == "sqlite")
+            return grap_sqlite(app_name, db_name);
+
+        return db::context{};
+    };
+
+    const auto j = make_json(get_ctx());
 
     cout << setw(4) << j << endl;
 

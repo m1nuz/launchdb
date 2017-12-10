@@ -23,7 +23,7 @@ namespace postgres {
     public:
         connection() = default;
 
-        static connection create(const std::string &connect_info) {
+        static connection create(const string &connect_info) {
             return {connect_info};
         }
 
@@ -35,8 +35,7 @@ namespace postgres {
             return is_ok();
         }
 
-        string error_message() const
-        {
+        string error_message() const {
             const char* message = PQerrorMessage(_conn.get());
             const size_t size = strlen(message);
             return string(message, size - 1);
@@ -62,11 +61,6 @@ namespace postgres {
             public:
                 friend class result;
 
-                const result& _result;
-                size_t _row;
-                const size_t _offset;
-                const size_t _columns;
-
                 row(const result &res, const size_t r, const size_t offset, const size_t columns) noexcept
                     : _result{res}
                     , _row{r}
@@ -74,7 +68,11 @@ namespace postgres {
                     , _columns{columns} {
                 }
 
-             };
+                const result& _result;
+                size_t _row;
+                const size_t _offset;
+                const size_t _columns;
+            };
 
             class const_iterator : row {
             public:
@@ -84,13 +82,12 @@ namespace postgres {
                     return lhs._row != rhs._row;
                 }
 
-                const_iterator& operator++()
-                {
+                const_iterator& operator++() noexcept {
                     ++_row;
                     return *this;
                 }
 
-                const row& operator*() const {
+                const row& operator*() const noexcept {
                     return *this;
                 }
 
@@ -101,9 +98,10 @@ namespace postgres {
             };
 
             result() = default;
-            result(PGresult *res) : _res{res, [&] (auto *p) { PQclear(p); }}
-              , _columns{static_cast<size_t>(PQnfields(res))}
-              , _rows{static_cast<size_t>(PQntuples(res))} {
+            result(PGresult *res)
+                : _res{res, [&] (auto *p) { PQclear(p); }}
+                , _columns{static_cast<size_t>(PQnfields(res))}
+                , _rows{static_cast<size_t>(PQntuples(res))} {
 
             }
 
@@ -129,11 +127,11 @@ namespace postgres {
                 return row{*this, size(), 0, _columns};
             }
 
-            size_t size() const {
+            size_t size() const noexcept {
                 return _rows;
             }
 
-            bool empty() const {
+            bool empty() const noexcept {
                 return _rows != 0;
             }
 

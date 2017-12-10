@@ -169,5 +169,7 @@ namespace postgres {
         cout << (cfg.make_transaction ? "COMMIT;\n" : "\n");
 
         return 0;
-    }
+    }    
 }
+
+

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sstream>
+#include <vector>
 #include <locale>
 #include <algorithm>
 
@@ -23,6 +24,24 @@ namespace strex {
     {
         return hash(str.c_str());
     }
+
+    inline std::vector<std::string> split(const std::string& text, const std::string& delims) {
+        std::vector<std::string> tokens;
+
+        auto start = text.find_first_not_of(delims);
+        auto end = std::string::size_type{0};
+
+        while ((end = text.find_first_of(delims, start)) != std::string::npos) {
+            tokens.push_back(text.substr(start, end - start));
+            start = text.find_first_not_of(delims, end);
+        }
+
+        if (start != std::string::npos)
+            tokens.push_back(text.substr(start));
+
+        return tokens;
+    }
+
 
     template <typename C>
     inline std::string join(const C& strs, const std::string& delimiter)
