@@ -22,5 +22,5 @@ install:
   - cd ..
 
 build_script:
-  - cmake -G "Visual Studio %CMAKE_GENERATOR% Win64" -DCMAKE_BUILD_TYPE=Release
+  - cmake -G "Visual Studio %CMAKE_GENERATOR% Win64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
   - cmake --build . --config Release
