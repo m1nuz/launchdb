@@ -23,5 +23,5 @@ install:
   - cd %APPVEYOR_BUILD_FOLDER%
 
 build_script:
-  - cmake -G "Visual Studio %CMAKE_GENERATOR% Win64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake
+  - cmake -G "Visual Studio %CMAKE_GENERATOR% Win64" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=c:/projects/vcpkg/scripts/buildsystems/vcpkg.cmake
   - cmake --build . --config Release
